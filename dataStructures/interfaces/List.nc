@@ -18,6 +18,7 @@ interface List<t>{
 	command void pushfront(t input);
 	command t popback();
 	command t popfront();
+	command bool search(t x);
 	command t front();
 	command t back();
 	command bool isEmpty();

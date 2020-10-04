@@ -18,6 +18,7 @@ implementation {
     components Node;
     components new AMReceiverC(AM_PACK) as GeneralReceive;
 
+
     Node -> MainC.Boot;
 
     Node.Receive -> GeneralReceive;
@@ -27,7 +28,20 @@ implementation {
 
     components new SimpleSendC(AM_PACK);
     Node.Sender -> SimpleSendC;
+	
+	components sampleC as sampleMod;
+	Node.sampleMod -> sampleMod;
 
     components CommandHandlerC;
     Node.CommandHandler -> CommandHandlerC;
+	
+	components NeighborC;
+	Node.Neighbor->NeighborC;
+	
+	components FloodingC;
+	Node.Flooding->FloodingC;
+	
+	components new TimerMilliC() as myTimerC; //create a new timer with alias “myTimerC”
+	Node.Boot -> MainC.Boot;
+	Node.periodicTimer -> myTimerC; //Wire the interface to the component
 }

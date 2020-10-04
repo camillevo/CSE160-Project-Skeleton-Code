@@ -15,6 +15,7 @@ enum{
 	MAX_TTL = 15
 };
 
+typedef int integer;
 
 typedef nx_struct pack{
 	nx_uint16_t dest;
