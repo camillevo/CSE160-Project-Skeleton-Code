@@ -13,6 +13,9 @@ implementation {
 	
 	components new SimpleSendC(AM_PACK);
 	NeighborP.SimpleSend -> SimpleSendC;
+
+	components new TimerMilliC() as myTimerC; //create a new timer with alias “myTimerC”
+	Node.periodicTimer -> myTimerC; //Wire the interface to the component
 	
 	//components new HashMapC(integer, 9);
 	//NeighborP.neighbors = neighbors;

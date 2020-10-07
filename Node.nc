@@ -65,7 +65,7 @@ implementation{
 		}
 	}
 
-   event void AMControl.stopDone(error_t err){}
+    event void AMControl.stopDone(error_t err){}
 
 	event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
 		if(len==sizeof(pack)){
@@ -74,7 +74,6 @@ implementation{
 			
 			if(myMsg->dest == AM_BROADCAST_ADDR) {
 				uint8_t none = 0;
-				//dbg(GENERAL_CHANNEL, "recieved neighbor packet\n");
 				// check if neighbor discovery packet
 				// return neighbor response
 				makePack(&sendPackage, TOS_NODE_ID, myMsg->src, 3, PROTOCOL_NEIGHBORRESPONSE, sequenceNum, &none, PACKET_MAX_PAYLOAD_SIZE);
@@ -82,15 +81,13 @@ implementation{
 				return msg;
 			}
 			
-			if(myMsg->protocol == PROTOCOL_NEIGHBORRESPONSE) {
-				int i;
-				
+			if(myMsg->protocol == PROTOCOL_NEIGHBORRESPONSE) {				
 				call Neighbor.findNeighbor(myMsg->src);
 				
 				return msg;
 			}
 			
-			if(call Neighbor.checkCache(myMsg->src, myMsg->seq) == 0) {
+			if(call Flooding.checkCache(myMsg->src, myMsg->seq) == 0) {
 				return msg;
 			}
 			
@@ -98,7 +95,7 @@ implementation{
 				int *neighbors = call Neighbor.getNeighborArray();
 				
 				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
-				call Neighbor.floodSend(sendPackage, myMsg->src, myMsg->dest, myMsg->payload);
+				call Flooding.floodSend(sendPackage, myMsg->src, myMsg->dest, myMsg->payload);
 				myMsg->TTL = myMsg->TTL - 1;
 				return msg;
 			}
@@ -122,8 +119,8 @@ implementation{
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, 0, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
 		
-		if(call Neighbor.checkCache(TOS_NODE_ID, sequenceNum)) {
-			call Neighbor.floodSend(sendPackage, TOS_NODE_ID, destination, payload);
+		if(call Flooding.checkCache(TOS_NODE_ID, sequenceNum)) {
+			call Flooding.floodSend(sendPackage, TOS_NODE_ID, destination, payload);
 		}
 		//call Sender.send(sendPackage, destination);
 	}

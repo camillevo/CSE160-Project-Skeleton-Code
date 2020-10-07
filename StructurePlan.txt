@@ -1,0 +1,29 @@
+1. Neighbor module 
+    a. Sends NDP every 300 seconds
+    b. Stores a list of tuples: [Neighbor, strength]
+    c. Recieves NDP's and adds to list of neighbors
+    d. Senses when all neighbors are found and calls Flooding
+        i. Set timeout. Every change, reset the timeout
+        ii. If timeout expires with no change, then call Flooding
+    e. Need to detect change to neighbor list
+        i. Call Flooding to send LSP
+        ii. If recieving a NDP from neighbor not in list, then change
+        iii. If a previous neighbor no longer responds, then change
+
+2. Flooding module
+    a. Is called from Neighbor and when node recieves a packet
+    b. Checks cache, then sends to neighbors
+    c. If this is an LSP, store in LSP module
+
+3. Link-State module interface
+    a. Something that stores LSP's 
+    b. Set timeout. Every time an LSP is recieved, reset timeout.
+        i. If timeout expires, call Dijkstra's
+    c. Routing table: [Destination, Next Hop, Cost, Backup next hop, Backup cost]
+    d. Function that uses Dijkstra's algo to populate Routing table
+    e. Routing table should be accesible from other modules
+
+4. IP module
+    a. Ping should now call this module
+    b. Retrieve this node's routing table
+    c. Find destination node and forward packet to Next Hop

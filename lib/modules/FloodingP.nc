@@ -4,6 +4,7 @@ module FloodingP {
 	provides interface Flooding;
 	
 	uses interface SimpleSend;
+	uses interface Neighbor;
 }
 
 implementation {
@@ -17,21 +18,31 @@ implementation {
 			}
 			if(cache[src - 1][i] == 0) {
 				cache[src - 1][i] = seqNum;
-				dbg(GENERAL_CHANNEL, "put seq in index %d\n", i);
 				return 1;
 			}
 		}
 	}
 	
-	command void Flooding.floodSend(pack x, int* neighborArr) {
+	command void Flooding.floodSend(pack x, uint16_t from, uint16_t destination, uint8_t* payload) {
 		int i;
-		for(i = 0; i < 2; i++) {
-			dbg(GENERAL_CHANNEL, "checkpoint 2. upcoming neighbot is %d\n", neighborArr[i]);
-			if(neighborArr[i] == 0) {
+		int * neighbors;
+		// check if node is already neighbors with destination
+ 		neighbors = call Neighbor.getNeighborArray();
+
+		for(i = 0; i < 20; i++) {
+			if(neighbors[i] == destination) {
+				call SimpleSend.send(x, neighbors[i]);
 				return;
 			}
-			dbg(GENERAL_CHANNEL, "sent flooding packet to %d\n", neighborArr[i]);
-			call SimpleSend.send(x, neighborArr[i]);
+		}	
+		for(i = 0; i < 20; i++) {
+			if(neighbors[i] == from) {
+				continue;
+			}
+			if(neighbors[i] == 0) {
+				return;
+			}
+			call SimpleSend.send(x, neighbors[i]);
 		}
 			
 	}

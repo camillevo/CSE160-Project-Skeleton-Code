@@ -42,6 +42,5 @@ implementation {
 	Node.Flooding->FloodingC;
 	
 	components new TimerMilliC() as myTimerC; //create a new timer with alias “myTimerC”
-	Node.Boot -> MainC.Boot;
 	Node.periodicTimer -> myTimerC; //Wire the interface to the component
 }
