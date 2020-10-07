@@ -15,7 +15,7 @@
 
 module Node{
    uses interface Boot;
-   uses interface Timer<TMilli> as periodicTimer; //Interface that was wired
+   //uses interface Timer<TMilli> as periodicTimer; //Interface that was wired
 
    uses interface SplitControl as AMControl;
    uses interface Receive;
@@ -38,22 +38,10 @@ implementation{
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 
 	event void Boot.booted(){
-		char neighborMessage[] = "ND";
-		
 		call AMControl.start();
-		
-		call periodicTimer.startPeriodic(6000000);
-		makePack(&sendPackage, TOS_NODE_ID, AM_BROADCAST_ADDR, 2, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), &neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
-		call Neighbor.sendPackets(sendPackage);
+		call Neighbor.startNeighborDiscovery();
 		
 		dbg(GENERAL_CHANNEL, "Booted\n");
-	}
-
-	event void periodicTimer.fired() {
-		char neighborMessage[] = "ND";
-		
-		makePack(&sendPackage, TOS_NODE_ID, AM_BROADCAST_ADDR, 2, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), &neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
-		call Neighbor.sendPackets(sendPackage);
 	}
 
 	event void AMControl.startDone(error_t err){
@@ -70,7 +58,6 @@ implementation{
 	event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
 		if(len==sizeof(pack)){
 			pack* myMsg=(pack*) payload;
-			
 			
 			if(myMsg->dest == AM_BROADCAST_ADDR) {
 				uint8_t none = 0;
@@ -111,12 +98,10 @@ implementation{
 
 
 	event void CommandHandler.ping(uint16_t destination, uint8_t *payload){
-		//  *neighbors = call Neighbor.getNeighborArray();
-		//int tester = *(++neighbors);
 		*(&sequenceNum) = sequenceNum + 1;
 	
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
-		makePack(&sendPackage, TOS_NODE_ID, destination, 5, 0, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
 		
 		if(call Flooding.checkCache(TOS_NODE_ID, sequenceNum)) {

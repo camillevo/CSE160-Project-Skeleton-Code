@@ -10,6 +10,9 @@ module NeighborP {
 
 implementation {
 	int neighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int sequenceNum = 0;
+	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
+
 	/*
 	command error_t Neighbor.testHashmap() {
 		call neighbors.insert(1, sample);
@@ -20,9 +23,24 @@ implementation {
 		dbg(GENERAL_CHANNEL, "keys %d\n", *keys);
 	}*/
 	
-	command error_t Neighbor.sendPackets(pack x){
-		call Node.makePack
-		call SimpleSend.send(x, AM_BROADCAST_ADDR);
+	command error_t Neighbor.sendPackets(){
+		pack neighborDiscoveryPacket;
+		char neighborMessage[] = "ND";
+
+		makePack(&neighborDiscoveryPacket, TOS_NODE_ID, AM_BROADCAST_ADDR, 2, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
+
+		call SimpleSend.send(neighborDiscoveryPacket, AM_BROADCAST_ADDR);
+	}
+
+	command void Neighbor.startNeighborDiscovery() {
+		call periodicTimer.startPeriodic(3000000);
+		call Neighbor.sendPackets();
+		*(&sequenceNum) = sequenceNum + 1;
+	}
+
+	event void periodicTimer.fired() {
+		*(&sequenceNum) = sequenceNum + 1;
+		call Neighbor.sendPackets();
 	}
 	
 	command bool Neighbor.findNeighbor(int x) {
@@ -54,4 +72,12 @@ implementation {
 		return neighbors;
 	}
 	
+	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
+		Package->src = src;
+		Package->dest = dest;
+		Package->TTL = TTL;
+		Package->seq = seq;
+		Package->protocol = protocol;
+		memcpy(Package->payload, payload, length);
+	}
 }

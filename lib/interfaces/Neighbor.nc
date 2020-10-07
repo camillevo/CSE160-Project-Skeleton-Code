@@ -1,6 +1,7 @@
 interface Neighbor{
    // Events
-   command error_t sendPackets(pack x);
+   command void startNeighborDiscovery();
+   command error_t sendPackets();
    // command error_t testHashmap();
    command bool findNeighbor(int x);
    command void printNeighbors();
