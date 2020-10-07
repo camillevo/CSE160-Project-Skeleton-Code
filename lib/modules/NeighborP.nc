@@ -11,19 +11,11 @@ module NeighborP {
 
 implementation {
 	int neighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int oldNeighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 	int sequenceNum = 0;
 	bool neighborsHaveSettled = 1;
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
-
-	/*
-	command error_t Neighbor.testHashmap() {
-		call neighbors.insert(1, sample);
-		call neighbors.insert(5, sample);
-		
-		keys = call neighbors.getKeys();
-		
-		dbg(GENERAL_CHANNEL, "keys %d\n", *keys);
-	}*/
 	
 	command error_t Neighbor.sendPackets(){
 		pack neighborDiscoveryPacket;
@@ -42,6 +34,7 @@ implementation {
 	}
 
 	event void periodicTimerA.fired() {
+		memcpy(oldNeighbors, neighbors, sizeof(int)* 20);
 		*(&sequenceNum) = sequenceNum + 1;
 		call Neighbor.sendPackets();
 	}
@@ -49,9 +42,22 @@ implementation {
 	event void periodicTimerB.fired() {
 		if (neighborsHaveSettled == 0) {
 			*(&neighborsHaveSettled) = 1;
-			call Neighbor.printNeighbors();
+			if(call Neighbor.detectChange()) {
+				call Neighbor.printNeighbors();
+				// call Flooding.floodSend( LSP );
+			}
+		}
+	}
 
-			// Call flooding for LSP's
+	command bool Neighbor.detectChange() {
+		int i;
+		for(i = 0; i < 20; i++) {
+			if(neighbors[i] != oldNeighbors[i]) {
+				return 1;
+			}
+			if(neighbors[i] == 0) {
+				return 0;
+			}
 		}
 	}
 	
@@ -70,13 +76,12 @@ implementation {
 			}
 		}
 		*(&neighborsHaveSettled) = 0;
-		//dbg(GENERAL_CHANNEL, "found neighbor %d. neighbors are now [%d, %d, %d, %d, %d, %d]\n", x, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6]);
 		
 		return ret;
 	}
 	
 	command void Neighbor.printNeighbors() {
-		dbg(GENERAL_CHANNEL, "%d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
+		dbg(GENERAL_CHANNEL, "Updated neighbors: %d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
 	}
 	
 	command int * Neighbor.getNeighborArray() {
