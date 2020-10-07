@@ -5,12 +5,14 @@ module NeighborP {
 	uses interface SimpleSend;
 	//uses interface HashMap<integer> as neighbors;
 	uses interface Random;
-	uses interface Timer<TMilli> as periodicTimer; //Interface that was wired
+	uses interface Timer<TMilli> as periodicTimerA; //Interface that was wired
+	uses interface Timer<TMilli> as periodicTimerB;
 }
 
 implementation {
 	int neighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	int sequenceNum = 0;
+	bool neighborsHaveSettled = 1;
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 
 	/*
@@ -33,14 +35,24 @@ implementation {
 	}
 
 	command void Neighbor.startNeighborDiscovery() {
-		call periodicTimer.startPeriodic(3000000);
+		call periodicTimerA.startPeriodic(900000);
+		call periodicTimerB.startPeriodic(3000);
 		call Neighbor.sendPackets();
 		*(&sequenceNum) = sequenceNum + 1;
 	}
 
-	event void periodicTimer.fired() {
+	event void periodicTimerA.fired() {
 		*(&sequenceNum) = sequenceNum + 1;
 		call Neighbor.sendPackets();
+	}
+
+	event void periodicTimerB.fired() {
+		if (neighborsHaveSettled == 0) {
+			*(&neighborsHaveSettled) = 1;
+			call Neighbor.printNeighbors();
+
+			// Call flooding for LSP's
+		}
 	}
 	
 	command bool Neighbor.findNeighbor(int x) {
@@ -57,15 +69,14 @@ implementation {
 				break;
 			}
 		}
-		
-		dbg(GENERAL_CHANNEL, "found neighbor %d. neighbors are now [%d, %d, %d, %d, %d, %d]\n", x, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6]);
+		*(&neighborsHaveSettled) = 0;
+		//dbg(GENERAL_CHANNEL, "found neighbor %d. neighbors are now [%d, %d, %d, %d, %d, %d]\n", x, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6]);
 		
 		return ret;
 	}
 	
-	
 	command void Neighbor.printNeighbors() {
-		dbg(GENERAL_CHANNEL, "neighbors are now %d, %d, %d, %d, %d, %d, %d, %d\n", neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
+		dbg(GENERAL_CHANNEL, "%d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
 	}
 	
 	command int * Neighbor.getNeighborArray() {
