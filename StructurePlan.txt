@@ -1,3 +1,9 @@
+To-Do:
+a. makepack, then Call flooding to flood LSP
+b. When recieve LSP, send LSP to Link State module
+c. create method that tells if you have all LSP's (same as neighbor discovery)
+
+
 1. Neighbor module 
     a. Sends NDP every 300 seconds
     b. Stores a list of tuples: [Neighbor, strength]

@@ -17,6 +17,11 @@ enum{
 
 typedef int integer;
 
+typedef struct lsPacket{
+	int neighbors[20];
+	int seqNum;
+} lsPacket;
+
 typedef nx_struct pack{
 	nx_uint16_t dest;
 	nx_uint16_t src;

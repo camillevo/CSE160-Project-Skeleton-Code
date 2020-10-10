@@ -3,15 +3,18 @@
 module NeighborP {
 	provides interface Neighbor;
 	uses interface SimpleSend;
-	//uses interface HashMap<integer> as neighbors;
 	uses interface Random;
+	uses interface Flooding;
 	uses interface Timer<TMilli> as periodicTimerA; //Interface that was wired
 	uses interface Timer<TMilli> as periodicTimerB;
+	uses interface List<integer> as myList;
 }
 
 implementation {
 	int neighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	int oldNeighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int lspSequenceNum = 0;
+	lsPacket myPacket;
 
 	int sequenceNum = 0;
 	bool neighborsHaveSettled = 1;
@@ -44,9 +47,20 @@ implementation {
 			*(&neighborsHaveSettled) = 1;
 			if(call Neighbor.detectChange()) {
 				call Neighbor.printNeighbors();
-				// call Flooding.floodSend( LSP );
+				call Neighbor.generateLSP();
 			}
 		}
+	}
+
+	command void Neighbor.generateLSP() {
+		pack lsp;
+		memcpy(myPacket.neighbors, neighbors, sizeof(int)* 20);
+		myPacket.seqNum = lspSequenceNum;
+
+		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, lspSequenceNum, neighbors, sizeof(int)* 20);
+		call Flooding.floodSend(lsp, TOS_NODE_ID, TOS_NODE_ID);
+
+		*(&lspSequenceNum) = lspSequenceNum + 1;
 	}
 
 	command bool Neighbor.detectChange() {

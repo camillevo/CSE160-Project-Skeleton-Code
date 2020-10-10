@@ -41,16 +41,16 @@ implementation{
 		}
 	}
 	
-	command bool List.search(t x){
-		int32_t i;
+	// command bool List.search(t x){
+	// 	int32_t i;
 		
-		for(i = size-1; i>=0; i--){
-			if(container[i] == x) {
-				return 1;
-			}
-		}
-		return 0;
-
+	// 	for(i = size-1; i>=0; i--){
+	// 		if(container[i] == x) {
+	// 			return 1;
+	// 		}
+	// 	}
+	// 	return 0;
+	// }
 	command t List.popback(){
 		t returnVal;
 

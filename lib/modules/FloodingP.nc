@@ -23,11 +23,14 @@ implementation {
 		}
 	}
 	
-	command void Flooding.floodSend(pack x, uint16_t from, uint16_t destination, uint8_t* payload) {
+	command void Flooding.floodSend(pack x, uint16_t from, uint16_t destination) {
 		int i;
 		int * neighbors;
 		// check if node is already neighbors with destination
  		neighbors = call Neighbor.getNeighborArray();
+		if(x.protocol == PROTOCOL_LSP) {
+			dbg(GENERAL_CHANNEL, "got LSP\n");
+		}
 
 		for(i = 0; i < 20; i++) {
 			if(neighbors[i] == destination) {
