@@ -23,14 +23,14 @@ implementation {
 		pack neighborDiscoveryPacket;
 		char neighborMessage[] = "ND";
 
-		makePack(&neighborDiscoveryPacket, TOS_NODE_ID, AM_BROADCAST_ADDR, 2, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&neighborDiscoveryPacket, TOS_NODE_ID, AM_BROADCAST_ADDR, 5, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), (uint8_t*) neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
 
 		call SimpleSend.send(neighborDiscoveryPacket, AM_BROADCAST_ADDR);
 	}
 
 	command void Neighbor.startNeighborDiscovery() {
 		call periodicTimerA.startPeriodic(1000000);
-		call periodicTimerB.startPeriodic(50000);
+		//call periodicTimerB.startPeriodic(50000);
 		call Neighbor.sendPackets();
 		*(&sequenceNum) = sequenceNum + 1;
 	}
@@ -42,17 +42,17 @@ implementation {
 	}
 
 	event void periodicTimerB.fired() {
-		if (neighborsHaveSettled == 0) {
-			*(&neighborsHaveSettled) = 1;
-			if(call Neighbor.detectChange()) {
-				call Neighbor.printNeighbors();
-				call Neighbor.generateLSP();
-			}
-		}
-		// if(call Neighbor.detectChange()) {
-		// 	call Neighbor.printNeighbors();
-		// 	//call Neighbor.generateLSP();
+		// if (neighborsHaveSettled == 0) {
+		// 	*(&neighborsHaveSettled) = 1;
+		// 	if(call Neighbor.detectChange()) {
+		// 		call Neighbor.printNeighbors();
+		// 		call Neighbor.generateLSP();
+		// 	}
 		// }
+		if(call Neighbor.detectChange()) {
+			call Neighbor.printNeighbors();
+			call Neighbor.generateLSP();
+		}
 	}
 
 	command void Neighbor.generateLSP() {
@@ -60,7 +60,7 @@ implementation {
 		memcpy(myPacket.neighbors, neighbors, sizeof(int)* 20);
 		myPacket.seqNum = sequenceNum;
 
-		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, call Random.rand16() % 1000, neighbors, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, call Random.rand16() % 1000, (uint8_t*) neighbors, PACKET_MAX_PAYLOAD_SIZE);
 		call LinkState.addLsp(&lsp);
 
 		*(&sequenceNum) = sequenceNum + 1;
@@ -76,6 +76,7 @@ implementation {
 				return 0;
 			}
 		}
+		return 0;
 	}
 	
 	command bool Neighbor.findNeighbor(int x) {
@@ -93,12 +94,21 @@ implementation {
 			}
 		}
 		*(&neighborsHaveSettled) = 0;
-		//call periodicTimerB.startOneShot(90000);
+		call periodicTimerB.startOneShot(100000);
 		return ret;
 	}
 	
 	command void Neighbor.printNeighbors() {
-		dbg(GENERAL_CHANNEL, "Updated neighbors: %d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
+		//dbg(GENERAL_CHANNEL, "Updated neighbors: %d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
+		int i;
+		printf(" - Updated neighbors: %d has neighbors %d", TOS_NODE_ID, neighbors[0]);
+		for (i  = 1; i < 20; i++) {
+			if(neighbors[i] == 0) {
+				break;
+			}
+			printf(", %d", neighbors[i]);
+		}
+		printf("\n");
 	}
 	
 	command int * Neighbor.getNeighborArray() {

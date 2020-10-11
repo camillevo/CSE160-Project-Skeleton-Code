@@ -26,6 +26,8 @@ typedef struct neighborPair{
 	int node;
 	int weight;
 	int nextHop;
+	int backupNextHop;
+	int backupWeight;
 } neighborPair;
 
 typedef nx_struct pack{

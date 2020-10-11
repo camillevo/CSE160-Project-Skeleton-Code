@@ -64,7 +64,7 @@ implementation{
 				uint8_t none = 0;
 				// check if neighbor discovery packet
 				// return neighbor response
-				makePack(&sendPackage, TOS_NODE_ID, myMsg->src, 3, PROTOCOL_NEIGHBORRESPONSE, sequenceNum, &none, PACKET_MAX_PAYLOAD_SIZE);
+				makePack(&sendPackage, TOS_NODE_ID, myMsg->src, 5, PROTOCOL_NEIGHBORRESPONSE, sequenceNum, &none, PACKET_MAX_PAYLOAD_SIZE);
 				call Sender.send(sendPackage, myMsg->src);
 				return msg;
 			}
@@ -85,7 +85,7 @@ implementation{
 			}
 			
 			if(myMsg->dest != TOS_NODE_ID) {
-				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
+				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, (uint8_t*) myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
 				call Flooding.floodSend(sendPackage, myMsg->src, myMsg->dest);
 				return msg;
 			}

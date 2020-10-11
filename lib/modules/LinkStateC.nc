@@ -14,10 +14,10 @@ implementation {
 	components new SimpleSendC(AM_PACK);
 	LinkStateP.SimpleSend -> SimpleSendC;
 
-	components new ListC(neighborPair, 20) as myListA;
+	components new HashmapC(neighborPair, 20) as myListA;
 	LinkStateP.confirmed -> myListA;
 
-	components new ListC(neighborPair, 20) as myListB;
+	components new HashmapC(neighborPair, 20) as myListB;
 	LinkStateP.tentative -> myListB;
 
 	components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”

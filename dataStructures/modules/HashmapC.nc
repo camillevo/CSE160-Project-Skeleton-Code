@@ -140,6 +140,19 @@ implementation{
       return map[0].value;
    }
 
+   command t* Hashmap.getPointer(uint32_t k) {
+      uint32_t i=0;	uint32_t j=0;
+      do{
+         j=hash(k, i);
+         if(map[j].key == k)
+            return &(map[j].value);
+         i++;
+      }while(i<HASH_MAX_SIZE);
+
+      // We have to return something so we return the first key
+      return &(map[0].value);
+   }
+
    command bool Hashmap.contains(uint32_t k){
       uint32_t i=0;	uint32_t j=0;
       /*

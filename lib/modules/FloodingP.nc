@@ -10,7 +10,7 @@ module FloodingP {
 implementation {
 	int cache[20][20];
 	
-	command bool Flooding.checkCache(int src, int seqNum) {
+	bool checkCache(int src, int seqNum) {
 		int i;
 		for(i = 0; i < 20; i++) {
 			if(cache[src - 1][i] == seqNum) {
@@ -21,6 +21,7 @@ implementation {
 				return 1;
 			}
 		}
+		return 0;
 	}
 	
 	command void Flooding.floodSend(pack x, uint16_t from, uint16_t destination) {
@@ -30,7 +31,7 @@ implementation {
  		neighbors = call Neighbor.getNeighborArray();
 //		 dbg(GENERAL_CHANNEL, "About to flood %d's packet from %d with seq %d to my neighbors\n", x.src, from, x.seq);
 		
-		if((call Flooding.checkCache(from, x.seq) == 0) || x.TTL < 0) {
+		if((checkCache(from, x.seq) == 0) || x.TTL < 0) {
 			return;
 		}
 		for(i = 0; i < 20; i++) {
