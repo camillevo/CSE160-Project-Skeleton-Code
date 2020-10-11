@@ -10,8 +10,11 @@ implementation {
 	components NeighborP;
 	Neighbor = NeighborP.Neighbor;
 	
-	components FloodingC;
-	NeighborP.Flooding -> FloodingC;
+	components LinkStateC;
+	NeighborP.LinkState -> LinkStateC;
+
+	components RandomC;
+	NeighborP.Random -> RandomC;
 
 	components new SimpleSendC(AM_PACK);
 	NeighborP.SimpleSend -> SimpleSendC;

@@ -16,8 +16,5 @@ implementation {
 	
 	components new SimpleSendC(AM_PACK);
 	FloodingP.SimpleSend -> SimpleSendC;
-	
-	//components new HashMapC(integer, 9);
-	//NeighborP.neighbors = neighbors;
 
 }

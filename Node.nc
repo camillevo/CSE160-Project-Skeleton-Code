@@ -27,6 +27,7 @@ module Node{
    
    uses interface Neighbor;
    uses interface Flooding;
+   uses interface LinkState;
 }
 
 implementation{
@@ -75,18 +76,17 @@ implementation{
 			}
 
 			if(myMsg->protocol == PROTOCOL_LSP) {
-				// send msg to LS layer to process
-			}
-			
-			// Combine functions into one Flooding one later
-			if(call Flooding.checkCache(myMsg->src, myMsg->seq) == 0) {
+				if(myMsg->dest == TOS_NODE_ID) {
+					return msg;
+				}
+				call LinkState.addLsp(myMsg);
+
 				return msg;
 			}
 			
-			if(myMsg->dest != TOS_NODE_ID && myMsg->TTL > 0) {	
+			if(myMsg->dest != TOS_NODE_ID) {
 				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
 				call Flooding.floodSend(sendPackage, myMsg->src, myMsg->dest);
-				myMsg->TTL = myMsg->TTL - 1;
 				return msg;
 			}
 			
@@ -106,9 +106,7 @@ implementation{
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
-		if(call Flooding.checkCache(TOS_NODE_ID, sequenceNum)) {
-			call Flooding.floodSend(sendPackage, TOS_NODE_ID, destination);
-		}
+		call Flooding.floodSend(sendPackage, TOS_NODE_ID, destination);
 	}
 
 	event void CommandHandler.printNeighbors(){}

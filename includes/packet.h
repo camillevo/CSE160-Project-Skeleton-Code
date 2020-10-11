@@ -22,6 +22,12 @@ typedef struct lsPacket{
 	int seqNum;
 } lsPacket;
 
+typedef struct neighborPair{
+	int node;
+	int weight;
+	int nextHop;
+} neighborPair;
+
 typedef nx_struct pack{
 	nx_uint16_t dest;
 	nx_uint16_t src;

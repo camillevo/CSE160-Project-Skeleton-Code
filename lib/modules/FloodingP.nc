@@ -28,10 +28,11 @@ implementation {
 		int * neighbors;
 		// check if node is already neighbors with destination
  		neighbors = call Neighbor.getNeighborArray();
-		if(x.protocol == PROTOCOL_LSP) {
-			dbg(GENERAL_CHANNEL, "got LSP\n");
+//		 dbg(GENERAL_CHANNEL, "About to flood %d's packet from %d with seq %d to my neighbors\n", x.src, from, x.seq);
+		
+		if((call Flooding.checkCache(from, x.seq) == 0) || x.TTL < 0) {
+			return;
 		}
-
 		for(i = 0; i < 20; i++) {
 			if(neighbors[i] == destination) {
 				call SimpleSend.send(x, neighbors[i]);
