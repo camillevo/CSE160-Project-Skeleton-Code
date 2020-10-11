@@ -29,8 +29,8 @@ implementation {
 	}
 
 	command void Neighbor.startNeighborDiscovery() {
-		call periodicTimerA.startPeriodic(900000);
-		call periodicTimerB.startPeriodic(3000);
+		call periodicTimerA.startPeriodic(1000000);
+		call periodicTimerB.startPeriodic(50000);
 		call Neighbor.sendPackets();
 		*(&sequenceNum) = sequenceNum + 1;
 	}
@@ -49,6 +49,10 @@ implementation {
 				call Neighbor.generateLSP();
 			}
 		}
+		// if(call Neighbor.detectChange()) {
+		// 	call Neighbor.printNeighbors();
+		// 	//call Neighbor.generateLSP();
+		// }
 	}
 
 	command void Neighbor.generateLSP() {
@@ -56,7 +60,7 @@ implementation {
 		memcpy(myPacket.neighbors, neighbors, sizeof(int)* 20);
 		myPacket.seqNum = sequenceNum;
 
-		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, call Random.rand16() % 300, neighbors, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, call Random.rand16() % 1000, neighbors, PACKET_MAX_PAYLOAD_SIZE);
 		call LinkState.addLsp(&lsp);
 
 		*(&sequenceNum) = sequenceNum + 1;
@@ -89,7 +93,7 @@ implementation {
 			}
 		}
 		*(&neighborsHaveSettled) = 0;
-		
+		//call periodicTimerB.startOneShot(90000);
 		return ret;
 	}
 	

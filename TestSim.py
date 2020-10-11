@@ -145,9 +145,9 @@ def main():
 
     s.printer("is it printing?");
 
-    s.runTime(30);
+    s.runTime(170);
     s.ping(5, 9, "5 to 9");
-    s.runTime(70);
+    s.runTime(30);
 
 if __name__ == '__main__':
     main()

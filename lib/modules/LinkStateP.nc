@@ -40,7 +40,7 @@ implementation {
         
         call Flooding.floodSend(*lsp, TOS_NODE_ID, TOS_NODE_ID);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
-        call myTimer.startOneShot(300000);
+        call myTimer.startOneShot(100000);
     }
     event void myTimer.fired() {
         int i;
@@ -54,6 +54,6 @@ implementation {
                 tot++;
             }
         }
-       // dbg(GENERAL_CHANNEL, "I have recieved Lsps from %d nodes. top 4 are %d, %d, %d, %d, %d, %d, %d, %d, %d\n", tot, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8]);
+        //dbg(GENERAL_CHANNEL, "I have recieved Lsps from %d nodes. top 4 are %d, %d, %d, %d, %d, %d, %d, %d, %d\n", tot, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8]);
     }
 }
