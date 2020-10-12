@@ -28,6 +28,7 @@ module Node{
    uses interface Neighbor;
    uses interface Flooding;
    uses interface LinkState;
+   uses interface Ip;
 }
 
 implementation{
@@ -75,7 +76,7 @@ implementation{
 				return msg;
 			}
 
-			if(myMsg->protocol == PROTOCOL_LSP) {
+			if(myMsg->protocol == PROTOCOL_LINKSTATE) {
 				if(myMsg->dest == TOS_NODE_ID) {
 					return msg;
 				}
@@ -86,7 +87,7 @@ implementation{
 			
 			if(myMsg->dest != TOS_NODE_ID) {
 				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, (uint8_t*) myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
-				call Flooding.floodSend(sendPackage, myMsg->src, myMsg->dest);
+				call Ip.ping(sendPackage);
 				return msg;
 			}
 			
@@ -106,8 +107,10 @@ implementation{
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
-		call Flooding.floodSend(sendPackage, TOS_NODE_ID, destination);
+		call Ip.ping(sendPackage);
 	}
+
+	event void LinkState.routingTableReady(){}
 
 	event void CommandHandler.printNeighbors(){}
 

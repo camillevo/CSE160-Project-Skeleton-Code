@@ -143,7 +143,6 @@ def main():
     s.addChannel(s.NEIGHBOR_CHANNEL);
     s.addChannel(s.GENERAL_CHANNEL);
 
-    s.printer("is it printing?");
 
     s.runTime(200);
     s.ping(5, 9, "5 to 9");

@@ -2,8 +2,8 @@
 
 module LinkStateP {
 	provides interface LinkState;
-	uses interface SimpleSend;
 	uses interface Flooding;
+    uses interface Ip;
 	uses interface Timer<TMilli> as myTimer;
 	uses interface Hashmap<neighborPair> as confirmed;
     uses interface Hashmap<neighborPair> as tentative;
@@ -14,11 +14,7 @@ implementation {
     int cache[20];
     int neighborMatrix[20][20] = {0};
 
-/*  1. gets list of nodes neighbors, check the cache to see if we already have it
-    2. if we do, then exit and disregard
-
-    7. when timer expires, then we run SP
-*/
+    task void routingTableFinished();
 
     command void LinkState.addLsp(pack *lsp) {
         memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(int) * 20);
@@ -59,6 +55,7 @@ implementation {
             call LinkState.dijkstraLoop();
         }
         call LinkState.printRoutingTable();
+        post routingTableFinished();
     }
 
     command void LinkState.dijkstraLoop() {
@@ -145,5 +142,17 @@ implementation {
                 printf("   -    |   -\n");
             }
         }
+    }
+
+    command int LinkState.getNextHop(int node) {
+        return (call confirmed.get(node)).nextHop;
+    }
+
+    command int LinkState.getBackupNextHop(int node) {
+        return (call confirmed.get(node)).backupNextHop;
+    }
+
+    task void routingTableFinished() {
+        signal LinkState.routingTableReady();
     }
 }

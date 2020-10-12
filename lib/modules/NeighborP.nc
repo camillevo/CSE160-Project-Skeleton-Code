@@ -19,6 +19,8 @@ implementation {
 	bool neighborsHaveSettled = 1;
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 	
+	task void generateLSP();
+
 	command error_t Neighbor.sendPackets(){
 		pack neighborDiscoveryPacket;
 		char neighborMessage[] = "ND";
@@ -51,16 +53,16 @@ implementation {
 		// }
 		if(call Neighbor.detectChange()) {
 			call Neighbor.printNeighbors();
-			call Neighbor.generateLSP();
+			post generateLSP();
 		}
 	}
 
-	command void Neighbor.generateLSP() {
+	task void generateLSP() {
 		pack lsp;
 		memcpy(myPacket.neighbors, neighbors, sizeof(int)* 20);
 		myPacket.seqNum = sequenceNum;
 
-		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LSP, call Random.rand16() % 1000, (uint8_t*) neighbors, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LINKSTATE, call Random.rand16() % 1000, (uint8_t*) neighbors, PACKET_MAX_PAYLOAD_SIZE);
 		call LinkState.addLsp(&lsp);
 
 		*(&sequenceNum) = sequenceNum + 1;
@@ -94,7 +96,7 @@ implementation {
 			}
 		}
 		*(&neighborsHaveSettled) = 0;
-		call periodicTimerB.startOneShot(100000);
+		call periodicTimerB.startOneShot(1000);
 		return ret;
 	}
 	
@@ -114,6 +116,8 @@ implementation {
 	command int * Neighbor.getNeighborArray() {
 		return neighbors;
 	}
+
+	event void LinkState.routingTableReady() {}
 	
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
 		Package->src = src;

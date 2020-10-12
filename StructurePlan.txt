@@ -30,6 +30,11 @@ c. create method that tells if you have all LSP's (same as neighbor discovery)
     e. Routing table should be accesible from other modules
 
 4. IP module
-    a. Ping should now call this module
-    b. Retrieve this node's routing table
-    c. Find destination node and forward packet to Next Hop
+    a. Stores an internal state - routingTableReady
+    b. When Link-State module finishes, signal event
+        i. Will need to either make new task or convert command to task
+    c. When fired, routingTableReady becomes true
+    d. In Node's ping, call IP.ping()
+    e. in IP.ping(), check if Routing table is ready. If not, start a timer and come back 
+    f. If it is ready, get the nextHop for the destination node and SimpleSend
+    g. Upon recieving, call IP module just like with flooding.

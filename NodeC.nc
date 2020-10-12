@@ -43,4 +43,7 @@ implementation {
 	
     components LinkStateC;
     Node.LinkState->LinkStateC;
+
+    components IpC;
+    Node.Ip->IpC;
 }

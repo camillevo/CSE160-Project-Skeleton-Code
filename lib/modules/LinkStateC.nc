@@ -11,8 +11,8 @@ implementation {
 	components FloodingC;
 	LinkStateP.Flooding -> FloodingC;
 
-	components new SimpleSendC(AM_PACK);
-	LinkStateP.SimpleSend -> SimpleSendC;
+	components IpC;
+	LinkStateP.Ip ->IpC;
 
 	components new HashmapC(neighborPair, 20) as myListA;
 	LinkStateP.confirmed -> myListA;
