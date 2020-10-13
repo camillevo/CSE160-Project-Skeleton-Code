@@ -132,10 +132,13 @@ class TestSim:
     def printer(msg1, msg2):
         print msg2;
 
+    def cmdRouteDMP(destination):
+        self.sendCMD(self.CMD_LINKSTATE_DUMP, destination, "print routing table");
+
 def main():
     s = TestSim();
     s.runTime(10);
-    s.loadTopo("example.topo");
+    s.loadTopo("demo.topo");
     s.loadNoise("no_noise.txt");
     s.bootAll();
     s.addChannel(s.COMMAND_CHANNEL);
@@ -145,18 +148,21 @@ def main():
 
 
     s.runTime(200);
+    s.neighborDMP(2);
+    s.routeDMP(3);
+    s.runTime(20);
     s.ping(3, 9, "3 to 9");
     s.runTime(20);
 
-    s.ping(2, 6, "2 to 6");
-    s.runTime(20);
+    # s.ping(2, 6, "2 to 6");
+    # s.runTime(20);
 
-    s.moteOff(3);
-    s.printer("ALERT: turned off mote 3");
+    # s.moteOff(3);
+    # s.printer("ALERT: turned off mote 3");
 
-    s.runTime(100);
-    s.ping(2, 6, "2 to 6");
-    s.runTime(10);
+    # s.runTime(100);
+    # s.ping(2, 6, "2 to 6");
+    # s.runTime(10);
 
 
 if __name__ == '__main__':

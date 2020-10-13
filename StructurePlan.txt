@@ -1,7 +1,11 @@
 To-Do:
-a. makepack, then Call flooding to flood LSP
-b. When recieve LSP, send LSP to Link State module
-c. create method that tells if you have all LSP's (same as neighbor discovery)
+a. Move LSP printing to a separate command instead of printing every change
+b. Fill in command to print LSP's
+c. Write function to clear tentative and confirmed lists
+d. If two nodes report the same node is down, then it's down fr
+e. Ip module should use backup nextHop if nextHop is down
+f. Keep an array length 20. value at index is strength of node. If it goes to 0, then don't send a node there.
+    i. reset the list after a timeout. it's not permanent, just an emergency thing
 
 
 1. Neighbor module 

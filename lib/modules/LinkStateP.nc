@@ -22,6 +22,7 @@ implementation {
         memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 20);
         
         call Flooding.floodSend(*lsp, TOS_NODE_ID, 0);
+        dbg(GENERAL_CHANNEL, "I got lsp from %d. Now going to flood to my neighbors\n", lsp->src);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
         call myTimer.startOneShot(921948);
     }
@@ -37,7 +38,6 @@ implementation {
             }
         }
         if(tot < 8) {
-            dbg(GENERAL_CHANNEL, "Did not recieve all LSP's yet.\n");
             call myTimer.startOneShot(690001);
             return;
         }

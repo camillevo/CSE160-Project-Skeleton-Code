@@ -33,14 +33,13 @@ implementation {
 	}
 
 	command void Neighbor.startNeighborDiscovery() {
-		call periodicTimerA.startPeriodic(1000000 + call Random.rand16()%100000);
+		call periodicTimerA.startPeriodic(1800000 + call Random.rand16()%100);
 		sendPackets();
 		*(&sequenceNum) = sequenceNum + 1;
 	}
 
 	event void periodicTimerA.fired() {
 		resetNeighborArray();
-		if(TOS_NODE_ID == 2 || TOS_NODE_ID == 6) {dbg(GENERAL_CHANNEL, "time to recheck neighbors\n");}
 		//memcpy(oldNeighbors, neighbors, sizeof(uint8_t)* 20);
 		*(&sequenceNum) = sequenceNum + 1;
 		sendPackets();
@@ -48,6 +47,7 @@ implementation {
 
 	event void checkNeighborsSettled.fired() {
 		if(detectChange()) {
+			signal Neighbor.neighborsHaveSettled();
 			memcpy(confirmedNeighbors, neighbors, sizeof(uint8_t)* 20);
 			call Neighbor.printNeighbors();
 			signal LinkState.routingTableReady(FALSE);
@@ -103,7 +103,7 @@ implementation {
 				break;
 			}
 		}
-		call checkNeighborsSettled.startOneShot(108043);
+		call checkNeighborsSettled.startOneShot(3043);
 		return ret;
 	}
 	

@@ -797,7 +797,7 @@ extern void *malloc(size_t __size) __attribute((__leaf__)) __attribute((__nothro
 #line 483
 extern void free(void *__ptr) __attribute((__leaf__)) __attribute((__nothrow__)) ;
 #line 742
-typedef int (*__compar_fn_t)(const void *arg_0x7f21c6482020, const void *arg_0x7f21c6482320);
+typedef int (*__compar_fn_t)(const void *arg_0x7fb401b60020, const void *arg_0x7fb401b60320);
 #line 780
 __extension__ 
 #line 797
@@ -818,7 +818,7 @@ extern double fabs(double __x) __attribute((__leaf__)) __attribute((__nothrow__)
 
 extern double floor(double __x) __attribute((__leaf__)) __attribute((__nothrow__)) __attribute((const)) ;
 #line 250
-extern double erfc(double arg_0x7f21c63fa5e0) __attribute((__leaf__)) __attribute((__nothrow__)) ;
+extern double erfc(double arg_0x7fb401ad85e0) __attribute((__leaf__)) __attribute((__nothrow__)) ;
 #line 326
 __extension__ 
 
@@ -1221,8 +1221,8 @@ typedef struct hashtable hashtable_t;
 #line 78
 struct hashtable *
 create_hashtable(unsigned int minsize, 
-unsigned int (*hashfunction)(void *arg_0x7f21c619d3a0), 
-int (*key_eq_fn)(void *arg_0x7f21c619db70, void *arg_0x7f21c619de30));
+unsigned int (*hashfunction)(void *arg_0x7fb40187b3a0), 
+int (*key_eq_fn)(void *arg_0x7fb40187bb70, void *arg_0x7fb40187be30));
 #line 103
 #line 102
 int 
@@ -1838,7 +1838,7 @@ struct tm;
 
 struct tm;
 # 46 "/opt/tinyos-main/tos/lib/tossim/randomlib.h"
-static inline void RandomInitialise(int arg_0x7f21c5f8ac00, int arg_0x7f21c5f8ae80);
+static inline void RandomInitialise(int arg_0x7fb401668c00, int arg_0x7fb401668e80);
 static double RandomUniform(void );
 # 51 "/opt/tinyos-main/tos/lib/tossim/sim_noise.c"
 int numCase1 = 0;
@@ -4191,6 +4191,7 @@ typedef neighborPair LinkStateP__tentative__t;
 typedef TMilli LinkStateP__myTimer__precision_tag;
 typedef neighborPair LinkStateP__confirmed__t;
 typedef int FloodingC__integer;
+typedef TMilli FloodingP__Timer__precision_tag;
 typedef sendInfo /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__Pool__t;
 typedef sendInfo */*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__Queue__t;
 typedef TMilli /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__sendTimer__precision_tag;
@@ -4227,11 +4228,11 @@ static error_t PlatformC__Init__init(void );
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static error_t SimSchedulerBasicP__TaskBasic__postTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f21c5e5e020);
+uint8_t arg_0x7fb40153c020);
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static void SimSchedulerBasicP__TaskBasic__default__runTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f21c5e5e020);
+uint8_t arg_0x7fb40153c020);
 # 57 "/opt/tinyos-main/tos/interfaces/Scheduler.nc"
 static void SimSchedulerBasicP__Scheduler__init(void );
 
@@ -4274,7 +4275,7 @@ static long long int SimMoteP__SimMote__getStartTime(void );
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static error_t TossimActiveMessageC__AMSend__send(
 # 47 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c91c70, 
+am_id_t arg_0x7fb40136fc70, 
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 am_addr_t addr, 
 #line 71
@@ -4297,7 +4298,7 @@ message_t *
 
 TossimActiveMessageC__Snoop__default__receive(
 # 49 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c76a50, 
+am_id_t arg_0x7fb401354a50, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -4344,7 +4345,7 @@ message_t *
 
 TossimActiveMessageC__Receive__default__receive(
 # 48 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c78e30, 
+am_id_t arg_0x7fb401356e30, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -4469,6 +4470,8 @@ void * payload,
 
 
 uint8_t len);
+# 13 "lib/interfaces/Neighbor.nc"
+static void Node__Neighbor__neighborsHaveSettled(void );
 # 6 "lib/interfaces/CommandHandler.nc"
 static void Node__CommandHandler__printLinkState(void );
 #line 4
@@ -4567,15 +4570,15 @@ static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__TimerFrom__f
 #line 83
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f21c56d6950);
+uint8_t arg_0x7fb400db2950);
 # 92 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static bool /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f21c56d6950);
+uint8_t arg_0x7fb400db2950);
 # 64 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startPeriodic(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f21c56d6950, 
+uint8_t arg_0x7fb400db2950, 
 # 64 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 uint32_t dt);
 
@@ -4588,7 +4591,7 @@ uint32_t dt);
 
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f21c56d6950, 
+uint8_t arg_0x7fb400db2950, 
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 uint32_t dt);
 # 82 "/opt/tinyos-main/tos/lib/timer/Counter.nc"
@@ -4623,7 +4626,7 @@ error_t error);
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(
 # 48 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-am_id_t arg_0x7f21c5624b60, 
+am_id_t arg_0x7fb400d00b60, 
 # 103 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 message_t * msg, 
 
@@ -4636,7 +4639,7 @@ error_t error);
 # 75 "/opt/tinyos-main/tos/interfaces/Send.nc"
 static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__send(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f21c5625940, 
+uint8_t arg_0x7fb400d01940, 
 # 67 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -4650,7 +4653,7 @@ uint8_t len);
 #line 100
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f21c5625940, 
+uint8_t arg_0x7fb400d01940, 
 # 96 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -4788,6 +4791,10 @@ static void LinkStateP__LinkState__nodeDown(uint8_t node);
 static void LinkStateP__routingTableFinished__runTask(void );
 # 3 "lib/interfaces/Flooding.nc"
 static void FloodingP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination);
+# 13 "lib/interfaces/Neighbor.nc"
+static void FloodingP__Neighbor__neighborsHaveSettled(void );
+# 83 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
+static void FloodingP__Timer__fired(void );
 # 4 "lib/interfaces/SimpleSend.nc"
 static error_t /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__SimpleSend__send(pack msg, uint16_t dest);
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
@@ -5081,7 +5088,7 @@ int sim_main_start_mote(void )   ;
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static void SimSchedulerBasicP__TaskBasic__runTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f21c5e5e020);
+uint8_t arg_0x7fb40153c020);
 
 
 
@@ -5269,7 +5276,7 @@ static am_addr_t TossimActiveMessageC__amAddress(void );
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static void TossimActiveMessageC__AMSend__sendDone(
 # 47 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c91c70, 
+am_id_t arg_0x7fb40136fc70, 
 # 103 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 message_t * msg, 
 
@@ -5288,7 +5295,7 @@ message_t *
 
 TossimActiveMessageC__Snoop__receive(
 # 49 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c76a50, 
+am_id_t arg_0x7fb401354a50, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -5307,7 +5314,7 @@ message_t *
 
 TossimActiveMessageC__Receive__receive(
 # 48 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f21c5c78e30, 
+am_id_t arg_0x7fb401356e30, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -5687,7 +5694,9 @@ static am_addr_t ActiveMessageAddressC__ActiveMessageAddress__amAddress(void );
 static inline am_addr_t ActiveMessageAddressC__amAddress(void );
 # 104 "/opt/tinyos-main/tos/interfaces/SplitControl.nc"
 static error_t Node__AMControl__start(void );
-# 4 "lib/interfaces/LinkState.nc"
+# 8 "lib/interfaces/LinkState.nc"
+static void Node__LinkState__printRoutingTable(void );
+#line 4
 static void Node__LinkState__addLsp(pack *lsp);
 # 4 "lib/interfaces/SimpleSend.nc"
 static error_t Node__Sender__send(pack msg, uint16_t dest);
@@ -5696,6 +5705,9 @@ static void Node__Neighbor__startNeighborDiscovery(void );
 
 
 
+
+static void Node__Neighbor__printNeighbors(void );
+#line 9
 static bool Node__Neighbor__findNeighbor(int x);
 # 5 "lib/interfaces/Ip.nc"
 static void Node__Ip__ping(pack sendPacket);
@@ -5737,9 +5749,15 @@ static inline void Node__CommandHandler__ping(uint16_t destination, uint8_t *pay
 
 static inline void Node__LinkState__routingTableReady(bool y);
 
+static inline void Node__Neighbor__neighborsHaveSettled(void );
+
 static inline void Node__CommandHandler__printNeighbors(void );
 
+
+
 static inline void Node__CommandHandler__printRouteTable(void );
+
+
 
 static inline void Node__CommandHandler__printLinkState(void );
 
@@ -6177,7 +6195,7 @@ static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__TimerFrom__s
 
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f21c56d6950);
+uint8_t arg_0x7fb400db2950);
 #line 71
 enum /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0____nesc_unnamed4346 {
 #line 71
@@ -6188,7 +6206,7 @@ typedef int /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0____nesc_silly
 #line 53
 enum /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0____nesc_unnamed4347 {
 
-  VirtualizeTimerC__0__NUM_TIMERS = 8U, 
+  VirtualizeTimerC__0__NUM_TIMERS = 9U, 
   VirtualizeTimerC__0__END_OF_LIST = 255
 };
 
@@ -6318,7 +6336,7 @@ static inline void /*NodeC.SimpleSendC.AMSenderC.SenderC.AMQueueEntryP*/AMQueueE
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(
 # 48 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-am_id_t arg_0x7f21c5624b60, 
+am_id_t arg_0x7fb400d00b60, 
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 am_addr_t addr, 
 #line 71
@@ -6335,7 +6353,7 @@ uint8_t len);
 # 100 "/opt/tinyos-main/tos/interfaces/Send.nc"
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f21c5625940, 
+uint8_t arg_0x7fb400d01940, 
 # 96 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -6605,6 +6623,8 @@ static void NeighborP__LinkState__addLsp(pack *lsp);
 
 
 static void NeighborP__LinkState__nodeDown(uint8_t node);
+# 13 "lib/interfaces/Neighbor.nc"
+static void NeighborP__Neighbor__neighborsHaveSettled(void );
 # 14 "lib/modules/NeighborP.nc"
 uint8_t NeighborP__confirmedNeighbors[1000][20];
 uint8_t NeighborP__neighbors[1000][20];
@@ -6640,8 +6660,8 @@ static inline void NeighborP__periodicTimerA__fired(void );
 
 
 
-
 static inline void NeighborP__checkNeighborsSettled__fired(void );
+
 
 
 
@@ -6665,7 +6685,7 @@ static inline bool NeighborP__detectChange(void );
 #line 92
 static inline bool NeighborP__Neighbor__findNeighbor(int x);
 #line 110
-static inline void NeighborP__Neighbor__printNeighbors(void );
+static void NeighborP__Neighbor__printNeighbors(void );
 #line 122
 static inline uint8_t *NeighborP__Neighbor__getNeighborArray(void );
 
@@ -6750,6 +6770,7 @@ static void LinkStateP__LinkState__addLsp(pack *lsp);
 
 
 
+
 static inline void LinkStateP__myTimer__fired(void );
 #line 47
 static void LinkStateP__LinkState__findShortestPath(void );
@@ -6758,7 +6779,7 @@ static inline void LinkStateP__dijkstraLoop(void );
 #line 116
 static inline int LinkStateP__findSmallestWeight(void );
 #line 132
-static inline void LinkStateP__LinkState__printRoutingTable(void );
+static void LinkStateP__LinkState__printRoutingTable(void );
 #line 150
 static inline void LinkStateP__LinkState__nodeDown(uint8_t node);
 
@@ -6777,12 +6798,26 @@ static inline void LinkStateP__routingTableFinished__runTask(void );
 static error_t FloodingP__SimpleSend__send(pack msg, uint16_t dest);
 # 11 "lib/interfaces/Neighbor.nc"
 static uint8_t *FloodingP__Neighbor__getNeighborArray(void );
-# 11 "lib/modules/FloodingP.nc"
+# 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
+static void FloodingP__Timer__startOneShot(uint32_t dt);
+# 13 "lib/modules/FloodingP.nc"
 int FloodingP__cache[1000][20][20];
+bool FloodingP__haveNeighborsSettled[1000];
+pack FloodingP__packToSend[1000];
+uint16_t FloodingP__frm[1000];
+uint16_t FloodingP__dest[1000];
 
 static inline bool FloodingP__checkCache(int src, int seqNum);
-#line 27
-static inline void FloodingP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination);
+#line 33
+static inline void FloodingP__Neighbor__neighborsHaveSettled(void );
+
+
+
+static inline void FloodingP__Timer__fired(void );
+
+
+
+static void FloodingP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination);
 # 97 "/opt/tinyos-main/tos/interfaces/Pool.nc"
 static 
 #line 94
@@ -7973,7 +8008,7 @@ static inline void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 inline static void NeighborP__checkNeighborsSettled__startOneShot(uint32_t dt){
 #line 73
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(7U, dt);
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(8U, dt);
 #line 73
 }
 #line 73
@@ -7996,7 +8031,7 @@ static inline bool NeighborP__Neighbor__findNeighbor(int x)
           break;
         }
     }
-  NeighborP__checkNeighborsSettled__startOneShot(108043);
+  NeighborP__checkNeighborsSettled__startOneShot(3043);
   return ret;
 }
 
@@ -8357,13 +8392,13 @@ static inline message_t *TossimActiveMessageC__Receive__default__receive(am_id_t
 }
 
 # 78 "/opt/tinyos-main/tos/interfaces/Receive.nc"
-inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7f21c5c78e30, message_t * msg, void * payload, uint8_t len){
+inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7fb401356e30, message_t * msg, void * payload, uint8_t len){
 #line 78
   nx_struct message_t *__nesc_result;
 #line 78
 
 #line 78
-  switch (arg_0x7f21c5c78e30) {
+  switch (arg_0x7fb401356e30) {
 #line 78
     case 6:
 #line 78
@@ -8379,7 +8414,7 @@ inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7
 #line 78
     default:
 #line 78
-      __nesc_result = TossimActiveMessageC__Receive__default__receive(arg_0x7f21c5c78e30, msg, payload, len);
+      __nesc_result = TossimActiveMessageC__Receive__default__receive(arg_0x7fb401356e30, msg, payload, len);
 #line 78
       break;
 #line 78
@@ -8530,40 +8565,20 @@ inline static uint16_t /*NodeC.SimpleSendC.SimpleSendP*/SimpleSendP__0__Random__
 #line 52
 }
 #line 52
-# 4 "lib/interfaces/SimpleSend.nc"
-inline static error_t FloodingP__SimpleSend__send(pack msg, uint16_t dest){
-#line 4
-  unsigned char __nesc_result;
-#line 4
-
-#line 4
-  __nesc_result = /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__SimpleSend__send(msg, dest);
-#line 4
-
-#line 4
-  return __nesc_result;
-#line 4
+# 3 "lib/interfaces/Flooding.nc"
+inline static void LinkStateP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination){
+#line 3
+  FloodingP__Flooding__floodSend(x, from, destination);
+#line 3
 }
-#line 4
-# 13 "lib/modules/FloodingP.nc"
-static inline bool FloodingP__checkCache(int src, int seqNum)
-#line 13
-{
-  int i;
-
-#line 15
-  for (i = 0; i < 20; i++) {
-      if (FloodingP__cache[sim_node()][src - 1][i] == seqNum) {
-          return 0;
-        }
-      if (FloodingP__cache[sim_node()][src - 1][i] == 0) {
-          FloodingP__cache[sim_node()][src - 1][i] = seqNum;
-          return 1;
-        }
-    }
-  return 0;
+#line 3
+# 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
+inline static void FloodingP__Timer__startOneShot(uint32_t dt){
+#line 73
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(2U, dt);
+#line 73
 }
-
+#line 73
 # 122 "lib/modules/NeighborP.nc"
 static inline uint8_t *NeighborP__Neighbor__getNeighborArray(void )
 #line 122
@@ -8586,43 +8601,40 @@ inline static uint8_t *FloodingP__Neighbor__getNeighborArray(void ){
 #line 11
 }
 #line 11
-# 27 "lib/modules/FloodingP.nc"
-static inline void FloodingP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination)
-#line 27
+# 19 "lib/modules/FloodingP.nc"
+static inline bool FloodingP__checkCache(int src, int seqNum)
+#line 19
 {
   int i;
-  uint8_t *neighbors;
 
-  neighbors = FloodingP__Neighbor__getNeighborArray();
-
-  if (FloodingP__checkCache(from, __nesc_ntoh_uint16(x.seq.nxdata)) == 0 || __nesc_ntoh_uint8(x.TTL.nxdata) < 0) {
-      return;
-    }
-
+#line 21
   for (i = 0; i < 20; i++) {
-      if (destination != 0 && neighbors[i] == destination) {
-          FloodingP__SimpleSend__send(x, neighbors[i]);
-          return;
+      if (FloodingP__cache[sim_node()][src - 1][i] == seqNum) {
+          return 0;
+        }
+      if (FloodingP__cache[sim_node()][src - 1][i] == 0) {
+          FloodingP__cache[sim_node()][src - 1][i] = seqNum;
+          return 1;
         }
     }
-  for (i = 0; i < 20; i++) {
-      if (neighbors[i] == from) {
-          continue;
-        }
-      if (neighbors[i] == 0) {
-          return;
-        }
-      FloodingP__SimpleSend__send(x, neighbors[i]);
-    }
+  return 0;
 }
 
-# 3 "lib/interfaces/Flooding.nc"
-inline static void LinkStateP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination){
-#line 3
-  FloodingP__Flooding__floodSend(x, from, destination);
-#line 3
+# 4 "lib/interfaces/SimpleSend.nc"
+inline static error_t FloodingP__SimpleSend__send(pack msg, uint16_t dest){
+#line 4
+  unsigned char __nesc_result;
+#line 4
+
+#line 4
+  __nesc_result = /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__SimpleSend__send(msg, dest);
+#line 4
+
+#line 4
+  return __nesc_result;
+#line 4
 }
-#line 3
+#line 4
 # 75 "/opt/tinyos-main/tos/system/PoolP.nc"
 static inline bool /*FloodingC.SimpleSendC.PoolC.PoolP*/PoolP__2__Pool__empty(void )
 #line 75
@@ -9275,29 +9287,7 @@ static inline void /*LinkStateC.myListB*/HashmapC__2__removeFromKeyList(uint32_t
     }
 }
 
-#line 183
-static inline uint16_t /*LinkStateC.myListA*/HashmapC__1__Hashmap__size(void )
-#line 183
-{
-  return /*LinkStateC.myListA*/HashmapC__1__numofVals[sim_node()];
-}
-
-# 17 "dataStructures/interfaces/Hashmap.nc"
-inline static uint16_t LinkStateP__confirmed__size(void ){
-#line 17
-  unsigned short __nesc_result;
-#line 17
-
-#line 17
-  __nesc_result = /*LinkStateC.myListA*/HashmapC__1__Hashmap__size();
-#line 17
-
-#line 17
-  return __nesc_result;
-#line 17
-}
-#line 17
-# 179 "dataStructures/modules/HashmapC.nc"
+#line 179
 static inline uint32_t */*LinkStateC.myListA*/HashmapC__1__Hashmap__getKeys(void )
 #line 179
 {
@@ -9319,34 +9309,28 @@ inline static uint32_t *LinkStateP__confirmed__getKeys(void ){
 #line 18
 }
 #line 18
-# 132 "lib/modules/LinkStateP.nc"
-static inline void LinkStateP__LinkState__printRoutingTable(void )
-#line 132
+# 183 "dataStructures/modules/HashmapC.nc"
+static inline uint16_t /*LinkStateC.myListA*/HashmapC__1__Hashmap__size(void )
+#line 183
 {
-  uint32_t *keys = LinkStateP__confirmed__getKeys();
-  int i;
-
-#line 135
-  sim_log_debug(187U, GENERAL_CHANNEL, "Routing table for %d complete\n", TOS_NODE_ID);
-  printf(" Node | Weight | NextHop | Backup | Backup Weight\n");
-  printf("--------------------------------------------------\n");
-
-  for (i = 0; i < LinkStateP__confirmed__size(); i++) {
-      neighborPair current = LinkStateP__confirmed__get(keys[i]);
-
-#line 141
-      printf("  %d   |   %d    |    %d    |", current.node, current.weight, current.nextHop);
-      if (current.backupWeight != 100) {
-          printf("   %d    |   %d\n", current.backupNextHop, current.backupWeight);
-        }
-      else 
-#line 144
-        {
-          printf("   -    |   -\n");
-        }
-    }
+  return /*LinkStateC.myListA*/HashmapC__1__numofVals[sim_node()];
 }
 
+# 17 "dataStructures/interfaces/Hashmap.nc"
+inline static uint16_t LinkStateP__confirmed__size(void ){
+#line 17
+  unsigned short __nesc_result;
+#line 17
+
+#line 17
+  __nesc_result = /*LinkStateC.myListA*/HashmapC__1__Hashmap__size();
+#line 17
+
+#line 17
+  return __nesc_result;
+#line 17
+}
+#line 17
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 inline static error_t LinkStateP__routingTableFinished__postTask(void ){
 #line 67
@@ -9543,7 +9527,7 @@ inline static bool /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendTimer__isR
 #line 92
 
 #line 92
-  __nesc_result = /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(2U);
+  __nesc_result = /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(3U);
 #line 92
 
 #line 92
@@ -9554,7 +9538,7 @@ inline static bool /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendTimer__isR
 #line 73
 inline static void /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendTimer__startOneShot(uint32_t dt){
 #line 73
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(2U, dt);
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(3U, dt);
 #line 73
 }
 #line 73
@@ -9581,13 +9565,13 @@ static inline message_t *TossimActiveMessageC__Snoop__default__receive(am_id_t i
 }
 
 # 78 "/opt/tinyos-main/tos/interfaces/Receive.nc"
-inline static message_t * TossimActiveMessageC__Snoop__receive(am_id_t arg_0x7f21c5c76a50, message_t * msg, void * payload, uint8_t len){
+inline static message_t * TossimActiveMessageC__Snoop__receive(am_id_t arg_0x7fb401354a50, message_t * msg, void * payload, uint8_t len){
 #line 78
   nx_struct message_t *__nesc_result;
 #line 78
 
 #line 78
-    __nesc_result = TossimActiveMessageC__Snoop__default__receive(arg_0x7f21c5c76a50, msg, payload, len);
+    __nesc_result = TossimActiveMessageC__Snoop__default__receive(arg_0x7fb401354a50, msg, payload, len);
 #line 78
 
 #line 78
@@ -9802,9 +9786,9 @@ static __inline  int8_t __nesc_hton_int8(void * target, int8_t value)
 }
 
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
-inline static void TossimActiveMessageC__AMSend__sendDone(am_id_t arg_0x7f21c5c91c70, message_t * msg, error_t error){
+inline static void TossimActiveMessageC__AMSend__sendDone(am_id_t arg_0x7fb40136fc70, message_t * msg, error_t error){
 #line 110
-  /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(arg_0x7f21c5c91c70, msg, error);
+  /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(arg_0x7fb40136fc70, msg, error);
 #line 110
 }
 #line 110
@@ -10391,9 +10375,9 @@ inline static error_t CommandHandlerP__Pool__put(CommandHandlerP__Pool__t * newV
 #line 89
 }
 #line 89
-# 123 "Node.nc"
+# 129 "Node.nc"
 static inline void Node__CommandHandler__setTestServer(void )
-#line 123
+#line 129
 {
 }
 
@@ -10404,9 +10388,9 @@ inline static void CommandHandlerP__CommandHandler__setTestServer(void ){
 #line 8
 }
 #line 8
-# 125 "Node.nc"
+# 131 "Node.nc"
 static inline void Node__CommandHandler__setTestClient(void )
-#line 125
+#line 131
 {
 }
 
@@ -10417,10 +10401,18 @@ inline static void CommandHandlerP__CommandHandler__setTestClient(void ){
 #line 9
 }
 #line 9
-# 117 "Node.nc"
+# 8 "lib/interfaces/LinkState.nc"
+inline static void Node__LinkState__printRoutingTable(void ){
+#line 8
+  LinkStateP__LinkState__printRoutingTable();
+#line 8
+}
+#line 8
+# 121 "Node.nc"
 static inline void Node__CommandHandler__printRouteTable(void )
-#line 117
+#line 121
 {
+  Node__LinkState__printRoutingTable();
 }
 
 # 5 "lib/interfaces/CommandHandler.nc"
@@ -10430,9 +10422,9 @@ inline static void CommandHandlerP__CommandHandler__printRouteTable(void ){
 #line 5
 }
 #line 5
-# 119 "Node.nc"
+# 125 "Node.nc"
 static inline void Node__CommandHandler__printLinkState(void )
-#line 119
+#line 125
 {
 }
 
@@ -10443,10 +10435,18 @@ inline static void CommandHandlerP__CommandHandler__printLinkState(void ){
 #line 6
 }
 #line 6
-# 115 "Node.nc"
+# 10 "lib/interfaces/Neighbor.nc"
+inline static void Node__Neighbor__printNeighbors(void ){
+#line 10
+  NeighborP__Neighbor__printNeighbors();
+#line 10
+}
+#line 10
+# 117 "Node.nc"
 static inline void Node__CommandHandler__printNeighbors(void )
-#line 115
+#line 117
 {
+  Node__Neighbor__printNeighbors();
 }
 
 # 4 "lib/interfaces/CommandHandler.nc"
@@ -11415,9 +11415,9 @@ static inline void SimSchedulerBasicP__TaskBasic__default__runTask(uint8_t id)
 }
 
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
-inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7f21c5e5e020){
+inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7fb40153c020){
 #line 75
-  switch (arg_0x7f21c5e5e020) {
+  switch (arg_0x7fb40153c020) {
 #line 75
     case TossimPacketModelC__startDoneTask:
 #line 75
@@ -11505,7 +11505,7 @@ inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7f21c5e5
 #line 75
     default:
 #line 75
-      SimSchedulerBasicP__TaskBasic__default__runTask(arg_0x7f21c5e5e020);
+      SimSchedulerBasicP__TaskBasic__default__runTask(arg_0x7fb40153c020);
 #line 75
       break;
 #line 75
@@ -11565,13 +11565,13 @@ inline static am_addr_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMPacket__dest
 }
 #line 78
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
-inline static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(am_id_t arg_0x7f21c5624b60, am_addr_t addr, message_t * msg, uint8_t len){
+inline static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(am_id_t arg_0x7fb400d00b60, am_addr_t addr, message_t * msg, uint8_t len){
 #line 80
   unsigned char __nesc_result;
 #line 80
 
 #line 80
-  __nesc_result = TossimActiveMessageC__AMSend__send(arg_0x7f21c5624b60, addr, msg, len);
+  __nesc_result = TossimActiveMessageC__AMSend__send(arg_0x7fb400d00b60, addr, msg, len);
 #line 80
 
 #line 80
@@ -12240,7 +12240,7 @@ inline static bool /*NeighborC.SimpleSendC.SimpleSendP*/SimpleSendP__3__sendTime
 #line 92
 
 #line 92
-  __nesc_result = /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(5U);
+  __nesc_result = /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(6U);
 #line 92
 
 #line 92
@@ -12251,7 +12251,7 @@ inline static bool /*NeighborC.SimpleSendC.SimpleSendP*/SimpleSendP__3__sendTime
 #line 73
 inline static void /*NeighborC.SimpleSendC.SimpleSendP*/SimpleSendP__3__sendTimer__startOneShot(uint32_t dt){
 #line 73
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(5U, dt);
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(6U, dt);
 #line 73
 }
 #line 73
@@ -12541,6 +12541,13 @@ static inline void /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__sendTime
   /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__sendBufferTask__postTask();
 }
 
+# 37 "lib/modules/FloodingP.nc"
+static inline void FloodingP__Timer__fired(void )
+#line 37
+{
+  FloodingP__Flooding__floodSend(FloodingP__packToSend[sim_node()], FloodingP__frm[sim_node()], FloodingP__dest[sim_node()]);
+}
+
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 inline static error_t /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendBufferTask__postTask(void ){
 #line 67
@@ -12570,9 +12577,9 @@ static inline void IpP__waitForRoutingTable__fired(void )
   IpP__Ip__ping(*IpP__myPacket[sim_node()]);
 }
 
-# 28 "lib/modules/LinkStateP.nc"
+# 29 "lib/modules/LinkStateP.nc"
 static inline void LinkStateP__myTimer__fired(void )
-#line 28
+#line 29
 {
   int i;
   int tot = 0;
@@ -12585,7 +12592,6 @@ static inline void LinkStateP__myTimer__fired(void )
         }
     }
   if (tot < 8) {
-      sim_log_debug(186U, GENERAL_CHANNEL, "Did not recieve all LSP's yet.\n");
       LinkStateP__myTimer__startOneShot(690001);
       return;
     }
@@ -12632,10 +12638,7 @@ static inline void NeighborP__periodicTimerA__fired(void )
 #line 41
 {
   NeighborP__resetNeighborArray();
-  if (TOS_NODE_ID == 2 || TOS_NODE_ID == 6) {
-#line 43
-      sim_log_debug(185U, GENERAL_CHANNEL, "time to recheck neighbors\n");
-    }
+
   * &NeighborP__sequenceNum[sim_node()] = NeighborP__sequenceNum[sim_node()] + 1;
   NeighborP__sendPackets();
 }
@@ -12678,23 +12681,28 @@ static inline void NeighborP__generateLSP(void )
   * &NeighborP__sequenceNum[sim_node()] = NeighborP__sequenceNum[sim_node()] + 1;
 }
 
-#line 110
-static inline void NeighborP__Neighbor__printNeighbors(void )
-#line 110
+# 115 "Node.nc"
+static inline void Node__Neighbor__neighborsHaveSettled(void )
+#line 115
 {
-  int i;
-
-#line 112
-  printf(" - Updated neighbors: %d has neighbors %d", TOS_NODE_ID, NeighborP__neighbors[sim_node()][0]);
-  for (i = 1; i < 20; i++) {
-      if (NeighborP__neighbors[sim_node()][i] == 0) {
-          break;
-        }
-      printf(", %d", NeighborP__neighbors[sim_node()][i]);
-    }
-  printf("\n");
 }
 
+# 33 "lib/modules/FloodingP.nc"
+static inline void FloodingP__Neighbor__neighborsHaveSettled(void )
+#line 33
+{
+  FloodingP__haveNeighborsSettled[sim_node()] = TRUE;
+}
+
+# 13 "lib/interfaces/Neighbor.nc"
+inline static void NeighborP__Neighbor__neighborsHaveSettled(void ){
+#line 13
+  FloodingP__Neighbor__neighborsHaveSettled();
+#line 13
+  Node__Neighbor__neighborsHaveSettled();
+#line 13
+}
+#line 13
 # 76 "dataStructures/modules/HashmapC.nc"
 static inline void /*LinkStateC.myListA*/HashmapC__1__removeFromKeyList(uint32_t k)
 #line 76
@@ -12820,11 +12828,12 @@ static inline bool NeighborP__detectChange(void )
   return FALSE;
 }
 
-#line 49
+#line 48
 static inline void NeighborP__checkNeighborsSettled__fired(void )
-#line 49
+#line 48
 {
   if (NeighborP__detectChange()) {
+      NeighborP__Neighbor__neighborsHaveSettled();
       memcpy(NeighborP__confirmedNeighbors[sim_node()], NeighborP__neighbors[sim_node()], sizeof(uint8_t ) * 20);
       NeighborP__Neighbor__printNeighbors();
       NeighborP__LinkState__routingTableReady(FALSE);
@@ -12838,9 +12847,9 @@ static inline void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 }
 
 # 83 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
-inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(uint8_t arg_0x7f21c56d6950){
+inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(uint8_t arg_0x7fb400db2950){
 #line 83
-  switch (arg_0x7f21c56d6950) {
+  switch (arg_0x7fb400db2950) {
 #line 83
     case 0U:
 #line 83
@@ -12856,35 +12865,41 @@ inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 #line 83
     case 2U:
 #line 83
-      /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendTimer__fired();
+      FloodingP__Timer__fired();
 #line 83
       break;
 #line 83
     case 3U:
 #line 83
-      IpP__waitForRoutingTable__fired();
+      /*IpC.SimpleSendC.SimpleSendP*/SimpleSendP__2__sendTimer__fired();
 #line 83
       break;
 #line 83
     case 4U:
 #line 83
-      LinkStateP__myTimer__fired();
+      IpP__waitForRoutingTable__fired();
 #line 83
       break;
 #line 83
     case 5U:
 #line 83
-      /*NeighborC.SimpleSendC.SimpleSendP*/SimpleSendP__3__sendTimer__fired();
+      LinkStateP__myTimer__fired();
 #line 83
       break;
 #line 83
     case 6U:
 #line 83
-      NeighborP__periodicTimerA__fired();
+      /*NeighborC.SimpleSendC.SimpleSendP*/SimpleSendP__3__sendTimer__fired();
 #line 83
       break;
 #line 83
     case 7U:
+#line 83
+      NeighborP__periodicTimerA__fired();
+#line 83
+      break;
+#line 83
+    case 8U:
 #line 83
       NeighborP__checkNeighborsSettled__fired();
 #line 83
@@ -12892,7 +12907,7 @@ inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 #line 83
     default:
 #line 83
-      /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(arg_0x7f21c56d6950);
+      /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(arg_0x7fb400db2950);
 #line 83
       break;
 #line 83
@@ -13655,7 +13670,7 @@ static inline void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 # 64 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 inline static void NeighborP__periodicTimerA__startPeriodic(uint32_t dt){
 #line 64
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startPeriodic(6U, dt);
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startPeriodic(7U, dt);
 #line 64
 }
 #line 64
@@ -13663,7 +13678,7 @@ inline static void NeighborP__periodicTimerA__startPeriodic(uint32_t dt){
 static inline void NeighborP__Neighbor__startNeighborDiscovery(void )
 #line 35
 {
-  NeighborP__periodicTimerA__startPeriodic(1000000 + NeighborP__Random__rand16() % 100000);
+  NeighborP__periodicTimerA__startPeriodic(1800000 + NeighborP__Random__rand16() % 100);
   NeighborP__sendPackets();
   * &NeighborP__sequenceNum[sim_node()] = NeighborP__sequenceNum[sim_node()] + 1;
 }
@@ -15328,9 +15343,9 @@ static void SimSchedulerBasicP__sim_scheduler_submit_event(void )
     }
 }
 
-# 131 "Node.nc"
+# 137 "Node.nc"
 static void Node__makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t *payload, uint8_t length)
-#line 131
+#line 137
 {
   __nesc_hton_uint16(Package->src.nxdata, src);
   __nesc_hton_uint16(Package->dest.nxdata, dest);
@@ -15548,8 +15563,50 @@ static void LinkStateP__LinkState__addLsp(pack *lsp)
   memcpy(LinkStateP__neighborMatrix[sim_node()][__nesc_ntoh_uint16(lsp->src.nxdata) - 1], lsp->payload, sizeof(uint8_t ) * 20);
 
   LinkStateP__Flooding__floodSend(*lsp, TOS_NODE_ID, 0);
+  sim_log_debug(185U, GENERAL_CHANNEL, "I got lsp from %d. Now going to flood to my neighbors\n", __nesc_ntoh_uint16(lsp->src.nxdata));
 
   LinkStateP__myTimer__startOneShot(921948);
+}
+
+# 41 "lib/modules/FloodingP.nc"
+static void FloodingP__Flooding__floodSend(pack x, uint16_t from, uint16_t destination)
+#line 41
+{
+  int i;
+  uint8_t *neighbors;
+
+  if (FloodingP__haveNeighborsSettled[sim_node()] == FALSE) {
+      FloodingP__packToSend[sim_node()] = x;
+      FloodingP__frm[sim_node()] = from;
+      FloodingP__dest[sim_node()] = destination;
+      sim_log_debug(187U, GENERAL_CHANNEL, "Neighbors have note settled. Waiting 1200 Clicks.\n");
+      FloodingP__Timer__startOneShot(1200);
+    }
+
+  neighbors = FloodingP__Neighbor__getNeighborArray();
+
+  if (FloodingP__checkCache(from, __nesc_ntoh_uint16(x.seq.nxdata)) == 0 || __nesc_ntoh_uint8(x.TTL.nxdata) < 0) {
+      return;
+    }
+
+  for (i = 0; i < 20; i++) {
+      if (destination != 0 && neighbors[i] == destination) {
+          FloodingP__SimpleSend__send(x, neighbors[i]);
+          return;
+        }
+    }
+  for (i = 0; i < 20; i++) {
+      if (neighbors[i] == from) {
+          continue;
+        }
+      if (neighbors[i] == __nesc_ntoh_uint16(x.src.nxdata)) {
+          continue;
+        }
+      if (neighbors[i] == 0) {
+          return;
+        }
+      FloodingP__SimpleSend__send(x, neighbors[i]);
+    }
 }
 
 # 49 "lib/modules/SimpleSendP.nc"
@@ -15619,7 +15676,7 @@ static void /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__postSendTask(vo
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static void LinkStateP__myTimer__startOneShot(uint32_t dt){
 #line 73
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(4U, dt);
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(5U, dt);
 #line 73
 }
 #line 73
@@ -15775,6 +15832,34 @@ static /*LinkStateC.myListA*/HashmapC__1__t /*LinkStateC.myListA*/HashmapC__1__H
 
 
   return /*LinkStateC.myListA*/HashmapC__1__map[sim_node()][0].value;
+}
+
+# 132 "lib/modules/LinkStateP.nc"
+static void LinkStateP__LinkState__printRoutingTable(void )
+#line 132
+{
+  uint32_t *keys = LinkStateP__confirmed__getKeys();
+  int i;
+
+#line 135
+  sim_log_debug(186U, GENERAL_CHANNEL, "Routing table for %d complete\n", TOS_NODE_ID);
+  printf(" Node | Weight | NextHop | Backup | Backup Weight\n");
+  printf("--------------------------------------------------\n");
+
+  for (i = 0; i < LinkStateP__confirmed__size(); i++) {
+      neighborPair current = LinkStateP__confirmed__get(keys[i]);
+
+#line 141
+      printf("  %d   |   %d    |    %d    |", current.node, current.weight, current.nextHop);
+      if (current.backupWeight != 100) {
+          printf("   %d    |   %d\n", current.backupNextHop, current.backupWeight);
+        }
+      else 
+#line 144
+        {
+          printf("   -    |   -\n");
+        }
+    }
 }
 
 # 73 "/opt/tinyos-main/tos/system/QueueC.nc"
@@ -16123,9 +16208,9 @@ static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(ui
 }
 
 # 100 "/opt/tinyos-main/tos/interfaces/Send.nc"
-static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint8_t arg_0x7f21c5625940, message_t * msg, error_t error){
+static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint8_t arg_0x7fb400d01940, message_t * msg, error_t error){
 #line 100
-  switch (arg_0x7f21c5625940) {
+  switch (arg_0x7fb400d01940) {
 #line 100
     case 0U:
 #line 100
@@ -16153,7 +16238,7 @@ static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint8_t arg
 #line 100
     default:
 #line 100
-      /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(arg_0x7f21c5625940, msg, error);
+      /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(arg_0x7fb400d01940, msg, error);
 #line 100
       break;
 #line 100
@@ -16317,6 +16402,23 @@ static error_t /*CommandHandlerC.PoolC.PoolP*/PoolP__1__Pool__put(/*CommandHandl
       sim_log_debug(177U, "PoolP", "%s size is %i\n", __FUNCTION__, (int )/*CommandHandlerC.PoolC.PoolP*/PoolP__1__free[sim_node()]);
       return SUCCESS;
     }
+}
+
+# 110 "lib/modules/NeighborP.nc"
+static void NeighborP__Neighbor__printNeighbors(void )
+#line 110
+{
+  int i;
+
+#line 112
+  printf(" - Updated neighbors: %d has neighbors %d", TOS_NODE_ID, NeighborP__neighbors[sim_node()][0]);
+  for (i = 1; i < 20; i++) {
+      if (NeighborP__neighbors[sim_node()][i] == 0) {
+          break;
+        }
+      printf(", %d", NeighborP__neighbors[sim_node()][i]);
+    }
+  printf("\n");
 }
 
 # 73 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
@@ -17287,6 +17389,30 @@ static int __nesc_nido_resolve(int __nesc_mote,
     *size = sizeof(FloodingP__cache[__nesc_mote]);
     return 0;
   }
+  if (!strcmp(varname, "FloodingP__haveNeighborsSettled"))
+  {
+    *addr = (uintptr_t)&FloodingP__haveNeighborsSettled[__nesc_mote];
+    *size = sizeof(FloodingP__haveNeighborsSettled[__nesc_mote]);
+    return 0;
+  }
+  if (!strcmp(varname, "FloodingP__packToSend"))
+  {
+    *addr = (uintptr_t)&FloodingP__packToSend[__nesc_mote];
+    *size = sizeof(FloodingP__packToSend[__nesc_mote]);
+    return 0;
+  }
+  if (!strcmp(varname, "FloodingP__frm"))
+  {
+    *addr = (uintptr_t)&FloodingP__frm[__nesc_mote];
+    *size = sizeof(FloodingP__frm[__nesc_mote]);
+    return 0;
+  }
+  if (!strcmp(varname, "FloodingP__dest"))
+  {
+    *addr = (uintptr_t)&FloodingP__dest[__nesc_mote];
+    *size = sizeof(FloodingP__dest[__nesc_mote]);
+    return 0;
+  }
 
   /* Module SimpleSendP__1 */
   if (!strcmp(varname, "/*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__busy"))
@@ -17707,6 +17833,10 @@ static void __nesc_nido_initialise(int __nesc_mote)
 
   /* Module FloodingP */
   memset((void *)&FloodingP__cache[__nesc_mote], 0, sizeof FloodingP__cache[__nesc_mote]);
+  FloodingP__haveNeighborsSettled[__nesc_mote] = TRUE;
+  memset((void *)&FloodingP__packToSend[__nesc_mote], 0, sizeof FloodingP__packToSend[__nesc_mote]);
+  memset((void *)&FloodingP__frm[__nesc_mote], 0, sizeof FloodingP__frm[__nesc_mote]);
+  memset((void *)&FloodingP__dest[__nesc_mote], 0, sizeof FloodingP__dest[__nesc_mote]);
 
   /* Module SimpleSendP__1 */
   /*FloodingC.SimpleSendC.SimpleSendP*/SimpleSendP__1__busy[__nesc_mote] = FALSE;

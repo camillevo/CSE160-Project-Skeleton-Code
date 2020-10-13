@@ -9,4 +9,6 @@ interface Neighbor{
    command bool findNeighbor(int x);
    command void printNeighbors();
    command uint8_t* getNeighborArray();
+
+   event void neighborsHaveSettled();
 }

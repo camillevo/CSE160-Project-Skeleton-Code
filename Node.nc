@@ -112,9 +112,15 @@ implementation{
 
 	event void LinkState.routingTableReady(bool y){}
 
-	event void CommandHandler.printNeighbors(){}
+	event void Neighbor.neighborsHaveSettled(){}
 
-	event void CommandHandler.printRouteTable(){}
+	event void CommandHandler.printNeighbors(){
+		call Neighbor.printNeighbors();
+	}
+
+	event void CommandHandler.printRouteTable(){
+		call LinkState.printRoutingTable();
+	}
 
 	event void CommandHandler.printLinkState(){}
 
