@@ -12,33 +12,35 @@ module LinkStateP {
 implementation {
     // this will store sequence number of latest LSP recieved at each node's index
     int cache[20];
-    int neighborMatrix[20][20] = {0};
+    uint8_t neighborMatrix[20][20] = {{0}};
 
     task void routingTableFinished();
+    void dijkstraLoop();
+    int findSmallestWeight();
 
     command void LinkState.addLsp(pack *lsp) {
-        memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(int) * 20);
-       // dbg(GENERAL_CHANNEL, "added lsp from %d to neighbor matrix\n", lsp->src);
+        memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 20);
         
-        call Flooding.floodSend(*lsp, TOS_NODE_ID, TOS_NODE_ID);
+        call Flooding.floodSend(*lsp, TOS_NODE_ID, 0);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
-        call myTimer.startOneShot(300000);
+        call myTimer.startOneShot(921948);
     }
     event void myTimer.fired() {
         int i;
         int tot = 0;
-        int a[12];
-        for(i = 0; i <= 12; i++) {
+        int a[20];
+
+        for(i = 0; i < 20; i++) {
             if(neighborMatrix[i][0] != 0) {
                 a[tot] = i + 1;
                 tot++;
             }
         }
-        if(tot != 9) {
-            call myTimer.startOneShot(10000);
+        if(tot < 8) {
+            dbg(GENERAL_CHANNEL, "Did not recieve all LSP's yet.\n");
+            call myTimer.startOneShot(690001);
             return;
         }
-        //dbg(GENERAL_CHANNEL, "Recieved Lsps from %d nodes: %d, %d, %d, %d, %d, %d, %d, %d, %d\n", tot, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8]);
         call LinkState.findShortestPath();
     }
 
@@ -52,20 +54,21 @@ implementation {
 
         call tentative.insert(TOS_NODE_ID, self);
         while(!call tentative.isEmpty()) {
-            call LinkState.dijkstraLoop();
+            dijkstraLoop();
         }
+
         call LinkState.printRoutingTable();
         post routingTableFinished();
     }
 
-    command void LinkState.dijkstraLoop() {
-        int curr = call LinkState.findSmallestWeight();
+    void dijkstraLoop() {
+        int curr = findSmallestWeight();
         neighborPair currNode = call tentative.get(curr);
         int i;
         call confirmed.insert(curr, currNode);
         call tentative.remove(curr);
 
-        for(i = 0; i < 10; i++) {
+        for(i = 0; i < 20; i++) {
             neighborPair currNeighbor;
             if(neighborMatrix[curr - 1][i] == 0) {
                 break;
@@ -110,7 +113,7 @@ implementation {
         }
     }
 
-    command int LinkState.findSmallestWeight() {
+    int findSmallestWeight() {
         uint16_t i;
         int min = 100;
         int node;
@@ -144,6 +147,10 @@ implementation {
         }
     }
 
+    command void LinkState.nodeDown(uint8_t node) {
+        call confirmed.remove((uint32_t) node);
+    }
+
     command int LinkState.getNextHop(int node) {
         return (call confirmed.get(node)).nextHop;
     }
@@ -153,6 +160,6 @@ implementation {
     }
 
     task void routingTableFinished() {
-        signal LinkState.routingTableReady();
+        signal LinkState.routingTableReady(TRUE);
     }
 }

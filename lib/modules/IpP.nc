@@ -11,17 +11,19 @@ implementation{
     bool routingTableReady = FALSE;
     pack *myPacket;
 
-    event void LinkState.routingTableReady() {
-        routingTableReady = TRUE;
-        //dbg(GENERAL_CHANNEL, "routing table finished: ip module\n");
+    event void LinkState.routingTableReady(bool y) {
+        routingTableReady = y;
     }
 
-    command bool Ip.ping(pack sendPacket){
+    command void Ip.ping(pack sendPacket){
         myPacket = &sendPacket;
         if(routingTableReady == FALSE) {
-            call waitForRoutingTable.startOneShot(1000);
+            printf("routing table not ready\n");
+            // If routing table hasn't been generated, generate it
+            call LinkState.findShortestPath();
+            //call waitForRoutingTable.startOneShot(1000);
         }
-        
+        printf("sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
         call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 

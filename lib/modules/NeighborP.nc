@@ -6,22 +6,24 @@ module NeighborP {
 	uses interface Random;
 	uses interface LinkState;
 	uses interface Timer<TMilli> as periodicTimerA; //Interface that was wired
-	uses interface Timer<TMilli> as periodicTimerB;
+	uses interface Timer<TMilli> as checkNeighborsSettled;
 	uses interface List<integer> as myList;
 }
 
 implementation {
-	int neighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	int oldNeighbors[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	uint8_t confirmedNeighbors[20] = {0}; //Existing set of neighbors
+	uint8_t neighbors[20] = {0}; // temp set of new neighbors
 	lsPacket myPacket;
 
 	int sequenceNum = 0;
-	bool neighborsHaveSettled = 1;
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 	
-	task void generateLSP();
+	void resetNeighborArray();
+	void generateLSP();
+	bool detectChange();
+	error_t sendPackets();
 
-	command error_t Neighbor.sendPackets(){
+	error_t sendPackets(){
 		pack neighborDiscoveryPacket;
 		char neighborMessage[] = "ND";
 
@@ -31,77 +33,81 @@ implementation {
 	}
 
 	command void Neighbor.startNeighborDiscovery() {
-		call periodicTimerA.startPeriodic(1000000);
-		//call periodicTimerB.startPeriodic(50000);
-		call Neighbor.sendPackets();
+		call periodicTimerA.startPeriodic(1000000 + call Random.rand16()%100000);
+		sendPackets();
 		*(&sequenceNum) = sequenceNum + 1;
 	}
 
 	event void periodicTimerA.fired() {
-		memcpy(oldNeighbors, neighbors, sizeof(int)* 20);
+		resetNeighborArray();
+		if(TOS_NODE_ID == 2 || TOS_NODE_ID == 6) {dbg(GENERAL_CHANNEL, "time to recheck neighbors\n");}
+		//memcpy(oldNeighbors, neighbors, sizeof(uint8_t)* 20);
 		*(&sequenceNum) = sequenceNum + 1;
-		call Neighbor.sendPackets();
+		sendPackets();
 	}
 
-	event void periodicTimerB.fired() {
-		// if (neighborsHaveSettled == 0) {
-		// 	*(&neighborsHaveSettled) = 1;
-		// 	if(call Neighbor.detectChange()) {
-		// 		call Neighbor.printNeighbors();
-		// 		call Neighbor.generateLSP();
-		// 	}
-		// }
-		if(call Neighbor.detectChange()) {
+	event void checkNeighborsSettled.fired() {
+		if(detectChange()) {
+			memcpy(confirmedNeighbors, neighbors, sizeof(uint8_t)* 20);
 			call Neighbor.printNeighbors();
-			post generateLSP();
+			signal LinkState.routingTableReady(FALSE);
+			generateLSP();
 		}
 	}
 
-	task void generateLSP() {
+	void generateLSP() {
 		pack lsp;
-		memcpy(myPacket.neighbors, neighbors, sizeof(int)* 20);
+		memcpy(myPacket.neighbors, neighbors, sizeof(uint8_t)* 20);
 		myPacket.seqNum = sequenceNum;
 
-		makePack(&lsp, TOS_NODE_ID, TOS_NODE_ID, 8, PROTOCOL_LINKSTATE, call Random.rand16() % 1000, (uint8_t*) neighbors, PACKET_MAX_PAYLOAD_SIZE);
+		makePack(&lsp, TOS_NODE_ID, 0, 8, PROTOCOL_LINKSTATE, call Random.rand16() % 1000, (uint8_t*) confirmedNeighbors, PACKET_MAX_PAYLOAD_SIZE);
 		call LinkState.addLsp(&lsp);
 
 		*(&sequenceNum) = sequenceNum + 1;
 	}
 
-	command bool Neighbor.detectChange() {
-		int i;
+	bool detectChange() {
+		// We will use a method similar to hashing, but with an array
+		int i = 0;
+		uint8_t temp[20] = {0};
+		
+		while(neighbors[i] > 0) {
+			temp[neighbors[i]] = 1;
+			i++;
+		}
+		//printf("temp[%d, %d, %d, %d, %d, %d, %d, %d, %d]\n", temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8]);
 		for(i = 0; i < 20; i++) {
-			if(neighbors[i] != oldNeighbors[i]) {
-				return 1;
-			}
 			if(neighbors[i] == 0) {
-				return 0;
+				if(confirmedNeighbors[i] == 0) { return FALSE; }
+				else { return TRUE; }
+			} 
+			if(temp[confirmedNeighbors[i]] == 0) {
+				call LinkState.nodeDown(confirmedNeighbors[i]);
+				return TRUE;
 			}
 		}
-		return 0;
+		return FALSE;
 	}
 	
 	command bool Neighbor.findNeighbor(int x) {
 		int i;
 		int ret;
 		for(i = 0; i < 20; i++) {
-			if (neighbors[i] == x) {
+			if (neighbors[i] == (uint8_t) x) {
 				ret = 1;
 				break;
 			}
 			if (neighbors[i] == 0) {
-				neighbors[i] = x;
+				neighbors[i] = (uint8_t) x;
 				ret = 0;
 				break;
 			}
 		}
-		*(&neighborsHaveSettled) = 0;
-		call periodicTimerB.startOneShot(1000);
+		call checkNeighborsSettled.startOneShot(108043);
 		return ret;
 	}
 	
 	command void Neighbor.printNeighbors() {
-		//dbg(GENERAL_CHANNEL, "Updated neighbors: %d has neighbors %d, %d, %d, %d, %d, %d, %d, %d\n", TOS_NODE_ID, neighbors[0], neighbors[1], neighbors[2], neighbors[3], neighbors[4], neighbors[5], neighbors[6], neighbors[7], neighbors[8]);
 		int i;
 		printf(" - Updated neighbors: %d has neighbors %d", TOS_NODE_ID, neighbors[0]);
 		for (i  = 1; i < 20; i++) {
@@ -113,11 +119,19 @@ implementation {
 		printf("\n");
 	}
 	
-	command int * Neighbor.getNeighborArray() {
-		return neighbors;
+	command uint8_t * Neighbor.getNeighborArray() {
+		return confirmedNeighbors;
 	}
 
-	event void LinkState.routingTableReady() {}
+	event void LinkState.routingTableReady(bool y) {}
+
+	void resetNeighborArray() {
+		int i = 0;
+		while(neighbors[i] != 0) {
+			neighbors[i] = 0;
+			i++;
+		}
+	}
 	
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
 		Package->src = src;

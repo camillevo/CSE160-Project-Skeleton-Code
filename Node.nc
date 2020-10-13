@@ -110,7 +110,7 @@ implementation{
 		call Ip.ping(sendPackage);
 	}
 
-	event void LinkState.routingTableReady(){}
+	event void LinkState.routingTableReady(bool y){}
 
 	event void CommandHandler.printNeighbors(){}
 

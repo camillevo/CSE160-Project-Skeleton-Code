@@ -26,16 +26,16 @@ implementation {
 	
 	command void Flooding.floodSend(pack x, uint16_t from, uint16_t destination) {
 		int i;
-		int * neighbors;
+		uint8_t * neighbors;
 		// check if node is already neighbors with destination
  		neighbors = call Neighbor.getNeighborArray();
-//		 dbg(GENERAL_CHANNEL, "About to flood %d's packet from %d with seq %d to my neighbors\n", x.src, from, x.seq);
 		
 		if((checkCache(from, x.seq) == 0) || x.TTL < 0) {
 			return;
 		}
+		
 		for(i = 0; i < 20; i++) {
-			if(neighbors[i] == destination) {
+			if(destination != 0 && neighbors[i] == destination) {
 				call SimpleSend.send(x, neighbors[i]);
 				return;
 			}
@@ -48,6 +48,7 @@ implementation {
 				return;
 			}
 			call SimpleSend.send(x, neighbors[i]);
+			
 		}
 			
 	}

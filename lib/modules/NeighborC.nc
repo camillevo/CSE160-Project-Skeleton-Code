@@ -26,6 +26,6 @@ implementation {
 	NeighborP.periodicTimerA -> myTimerA; //Wire the interface to the component
 
 	components new TimerMilliC() as myTimerB;
-	NeighborP.periodicTimerB -> myTimerB;
+	NeighborP.checkNeighborsSettled -> myTimerB;
 
 }
