@@ -4,6 +4,7 @@ module FloodingP {
 	provides interface Flooding;
 	
 	uses interface SimpleSend;
+	uses interface Receive;
 	uses interface Neighbor;
 	uses interface Timer<TMilli> as Timer; 
 
@@ -30,9 +31,9 @@ implementation {
 		return 0;
 	}
 
-	event void Neighbor.neighborsHaveSettled() {
-		haveNeighborsSettled = TRUE;
-	}
+	// event void Neighbor.neighborsHaveSettled() {
+	// 	haveNeighborsSettled = TRUE;
+	// }
 
 	event void Timer.fired() {
 		call Flooding.floodSend(packToSend, frm, dest);
@@ -50,7 +51,7 @@ implementation {
 			call Timer.startOneShot(1200);
 		}
 
- 		neighbors = call Neighbor.getNeighborArray();
+ 		//neighbors = call Neighbor.getNeighborArray();
 		
 		if((checkCache(from, x.seq) == 0) || x.TTL < 0) {
 			return;
@@ -76,6 +77,25 @@ implementation {
 			
 		}
 			
+	}
+
+	event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
+		if(len==sizeof(pack)){
+			pack* myMsg=(pack*) payload;
+
+			switch(myMsg->protocol) {
+				case PROTOCOL_NEIGHBORDISCOVERY:
+					packToSend.protocol = PROTOCOL_NEIGHBORRESPONSE;
+					packToSend.src = TOS_NODE_ID;
+					call SimpleSend.send(packToSend, myMsg->src);
+					break;
+				case PROTOCOL_NEIGHBORRESPONSE:
+					call Neighbor.processNeighborResponse(myMsg->src);
+					break;
+
+			}
+			return msg;
+		}
 	}
 	
 }

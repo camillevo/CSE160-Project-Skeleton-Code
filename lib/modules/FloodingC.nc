@@ -6,7 +6,8 @@ configuration FloodingC {
 }
 
 implementation {
-	typedef int integer;
+	components new AMReceiverC(AM_PACK) as GeneralReceive;
+	FloodingP.Receive -> GeneralReceive;
 
 	components FloodingP;
 	Flooding = FloodingP.Flooding;

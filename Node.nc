@@ -15,26 +15,18 @@
 
 module Node{
    uses interface Boot;
-   //uses interface Timer<TMilli> as periodicTimer; //Interface that was wired
 
    uses interface SplitControl as AMControl;
-   uses interface Receive;
-
-   uses interface sampleModule as sampleMod;
-   uses interface SimpleSend as Sender;
-
    uses interface CommandHandler;
    
    uses interface Neighbor;
-   uses interface Flooding;
-   uses interface LinkState;
    uses interface Ip;
 }
 
 implementation{
-
-   pack sendPackage;
-   int sequenceNum = 0;
+	pack sendPackage;
+	int seqNum = 0;
+	int * sequenceNum = &seqNum;
 
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
@@ -57,49 +49,6 @@ implementation{
 
     event void AMControl.stopDone(error_t err){}
 
-	event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
-		if(len==sizeof(pack)){
-			pack* myMsg=(pack*) payload;
-			
-			if(myMsg->dest == AM_BROADCAST_ADDR) {
-				uint8_t none = 0;
-				// check if neighbor discovery packet
-				// return neighbor response
-				makePack(&sendPackage, TOS_NODE_ID, myMsg->src, 5, PROTOCOL_NEIGHBORRESPONSE, sequenceNum, &none, PACKET_MAX_PAYLOAD_SIZE);
-				call Sender.send(sendPackage, myMsg->src);
-				return msg;
-			}
-			
-			if(myMsg->protocol == PROTOCOL_NEIGHBORRESPONSE) {				
-				call Neighbor.findNeighbor(myMsg->src);
-				
-				return msg;
-			}
-
-			if(myMsg->protocol == PROTOCOL_LINKSTATE) {
-				if(myMsg->dest == TOS_NODE_ID) {
-					return msg;
-				}
-				call LinkState.addLsp(myMsg);
-
-				return msg;
-			}
-			
-			if(myMsg->dest != TOS_NODE_ID) {
-				makePack(&sendPackage, myMsg->src, myMsg->dest, (myMsg->TTL) - 1, PROTOCOL_PING, myMsg->seq, (uint8_t*) myMsg->payload, PACKET_MAX_PAYLOAD_SIZE);
-				call Ip.ping(sendPackage);
-				return msg;
-			}
-			
-			dbg(GENERAL_CHANNEL, "Packet Received\n");
-			
-			dbg(GENERAL_CHANNEL, "Package Payload: %s\n", myMsg->payload);
-			return msg;
-		}
-		dbg(GENERAL_CHANNEL, "Unknown Packet Type %d\n", len);
-		return msg;
-	}
-
 
 	event void CommandHandler.ping(uint16_t destination, uint8_t *payload){
 		*(&sequenceNum) = sequenceNum + 1;
@@ -107,19 +56,17 @@ implementation{
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, sequenceNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
-		call Ip.ping(sendPackage);
+		//call Ip.ping(sendPackage);
 	}
 
-	event void LinkState.routingTableReady(bool y){}
-
-	event void Neighbor.neighborsHaveSettled(){}
+	//event void Neighbor.neighborsHaveSettled(){}
 
 	event void CommandHandler.printNeighbors(){
-		call Neighbor.printNeighbors();
+		//call Neighbor.printNeighbors();
 	}
 
 	event void CommandHandler.printRouteTable(){
-		call LinkState.printRoutingTable();
+		//call LinkState.printRoutingTable();
 	}
 
 	event void CommandHandler.printLinkState(){}

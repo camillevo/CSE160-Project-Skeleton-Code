@@ -148,11 +148,16 @@ def main():
 
 
     s.runTime(200);
-    s.neighborDMP(2);
-    s.routeDMP(3);
+    # s.neighborDMP(2);
+    # s.routeDMP(3);
     s.runTime(20);
     s.ping(3, 9, "3 to 9");
-    s.runTime(20);
+    s.runTime(60);
+    s.printer("turning off mote 3");
+    s.moteOff(3);
+    s.runTime(100);
+    s.ping(4, 9, "4 to 9");
+    s.runTime(100);
 
     # s.ping(2, 6, "2 to 6");
     # s.runTime(20);

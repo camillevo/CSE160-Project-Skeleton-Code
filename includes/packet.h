@@ -22,6 +22,12 @@ typedef struct lsPacket{
 	int seqNum;
 } lsPacket;
 
+typedef struct neighborWeight{
+	int node;
+	int weights[3];
+	bool confirmedNeighbor;
+} neighborWeight;
+
 typedef struct neighborPair{
 	int node;
 	int weight;
