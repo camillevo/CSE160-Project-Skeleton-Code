@@ -58,7 +58,7 @@ implementation {
 			neighborWeight *curr = call neighbors.getPointer(keys[i]);
 			float avg = (curr->weights[0] + curr->weights[1] + curr->weights[2]) / (float) 3;
 
-			if(avg > 0.50) {
+			if(avg > 0.30) {
 				if(curr->confirmedNeighbor != TRUE) {
 					haveNeighborsChanged = TRUE;
 					curr->confirmedNeighbor = TRUE;
@@ -72,6 +72,7 @@ implementation {
 		}
 		if(haveNeighborsChanged) {
 			printNeighbors();
+			signal Neighbor.neighborsHaveSettled();
 		}
 		call recheckNeighbors.startOneShot(89834);
 	}
@@ -90,6 +91,19 @@ implementation {
 			}
 		}
 		printf("\n");
+	}
+
+	command uint8_t* Neighbor.getNeighborArray() {
+		int i;
+		int y = 0;
+		uint32_t *keys = call neighbors.getKeys();
+		for(i = 0; i < call neighbors.size(); i++) {
+			if((call neighbors.get(keys[i])).confirmedNeighbor == TRUE) {
+				finalizedNeighbors[y] = (call neighbors.get(keys[i])).node;
+				y++;
+			}
+		}
+		return finalizedNeighbors;
 	}
 	
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

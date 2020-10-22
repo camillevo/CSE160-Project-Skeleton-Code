@@ -18,7 +18,7 @@ implementation {
 	components new SimpleSendC(AM_PACK);
 	FloodingP.SimpleSend -> SimpleSendC;
 
-	components new TimerMilliC() as myTimerA; 
-	FloodingP.Timer -> myTimerA;
+	components new ListC(floodingPacket, 20) as list;
+	FloodingP.cache -> list;
 
 }

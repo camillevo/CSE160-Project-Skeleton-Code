@@ -9,7 +9,7 @@ interface Neighbor{
    // task void generateLSP();
    //command bool findNeighbor(int x);
    //command void printNeighbors();
-   //command uint8_t* getNeighborArray();
+   command uint8_t* getNeighborArray();
 
-   //event void neighborsHaveSettled();
+   event void neighborsHaveSettled();
 }

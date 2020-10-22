@@ -3,48 +3,51 @@
 module LinkStateP {
 	provides interface LinkState;
 	uses interface Flooding;
-    uses interface Ip;
+    uses interface Neighbor;
 	uses interface Timer<TMilli> as myTimer;
 	uses interface Hashmap<neighborPair> as confirmed;
     uses interface Hashmap<neighborPair> as tentative;
 }
 
 implementation {
-    // this will store sequence number of latest LSP recieved at each node's index
-    int cache[20];
+    int sequenceNum = 1;
+    int seqNumCache[20] = {0};
     uint8_t neighborMatrix[20][20] = {{0}};
 
-    task void routingTableFinished();
+    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
+    void findShortestPath();
     void dijkstraLoop();
     int findSmallestWeight();
 
+    event void Neighbor.neighborsHaveSettled() {
+        pack myPack;
+        uint8_t *neighbors = call Neighbor.getNeighborArray();
+        makePack(&myPack, TOS_NODE_ID, 0, 8, PROTOCOL_LINKSTATE, sequenceNum, neighbors, PACKET_MAX_PAYLOAD_SIZE);
+
+        call LinkState.addLsp(&myPack);
+        *(&sequenceNum) = sequenceNum + 1;
+	}
+
     command void LinkState.addLsp(pack *lsp) {
+        if(TOS_NODE_ID == 4 || TOS_NODE_ID == 2) {
+            dbg(GENERAL_CHANNEL, "Recieved LSP from node %d, seqNum = %d\n", lsp->src, lsp->seq);
+        }
+        if(seqNumCache[lsp->src] >= lsp->seq) {
+            return;
+        } else {
+            seqNumCache[lsp->src] = lsp->seq;
+        }
         memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 20);
-        
-        call Flooding.floodSend(*lsp, TOS_NODE_ID, 0);
-        dbg(GENERAL_CHANNEL, "I got lsp from %d. Now going to flood to my neighbors\n", lsp->src);
+        call Flooding.floodSend(*lsp, lsp->src, 0);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
         call myTimer.startOneShot(921948);
     }
+
     event void myTimer.fired() {
-        int i;
-        int tot = 0;
-        int a[20];
-
-        for(i = 0; i < 20; i++) {
-            if(neighborMatrix[i][0] != 0) {
-                a[tot] = i + 1;
-                tot++;
-            }
-        }
-        if(tot < 8) {
-            call myTimer.startOneShot(690001);
-            return;
-        }
-        call LinkState.findShortestPath();
+        findShortestPath();
     }
-
-    command void LinkState.findShortestPath() {
+    
+    void findShortestPath() {
         neighborPair self;
         self.node = TOS_NODE_ID;
         self.weight = 0;
@@ -58,7 +61,7 @@ implementation {
         }
 
         call LinkState.printRoutingTable();
-        post routingTableFinished();
+        signal LinkState.routingTableReady();
     }
 
     void dijkstraLoop() {
@@ -147,19 +150,16 @@ implementation {
         }
     }
 
-    command void LinkState.nodeDown(uint8_t node) {
-        call confirmed.remove((uint32_t) node);
-    }
-
     command int LinkState.getNextHop(int node) {
         return (call confirmed.get(node)).nextHop;
     }
 
-    command int LinkState.getBackupNextHop(int node) {
-        return (call confirmed.get(node)).backupNextHop;
-    }
-
-    task void routingTableFinished() {
-        signal LinkState.routingTableReady(TRUE);
-    }
+    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
+		Package->src = src;
+		Package->dest = dest;
+		Package->TTL = TTL;
+		Package->seq = seq;
+		Package->protocol = protocol;
+		memcpy(Package->payload, payload, length);
+	}
 }

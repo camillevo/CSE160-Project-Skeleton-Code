@@ -11,8 +11,8 @@ implementation {
 	components FloodingC;
 	LinkStateP.Flooding -> FloodingC;
 
-	components IpC;
-	LinkStateP.Ip ->IpC;
+	components NeighborC;
+	LinkStateP.Neighbor ->NeighborC;
 
 	components new HashmapC(neighborPair, 20) as myListA;
 	LinkStateP.confirmed -> myListA;
