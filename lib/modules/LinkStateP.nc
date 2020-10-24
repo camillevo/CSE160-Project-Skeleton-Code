@@ -29,9 +29,6 @@ implementation {
 	}
 
     command void LinkState.addLsp(pack *lsp) {
-        if(TOS_NODE_ID == 4 || TOS_NODE_ID == 2) {
-            dbg(GENERAL_CHANNEL, "Recieved LSP from node %d, seqNum = %d\n", lsp->src, lsp->seq);
-        }
         if(seqNumCache[lsp->src] >= lsp->seq) {
             return;
         } else {
@@ -40,10 +37,12 @@ implementation {
         memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 20);
         call Flooding.floodSend(*lsp, lsp->src, 0);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
-        call myTimer.startOneShot(921948);
+        call myTimer.startOneShot(131948);
     }
 
     event void myTimer.fired() {
+        // empty confirmed list before calling findShortestPath();
+        call confirmed.clear();
         findShortestPath();
     }
     
@@ -60,7 +59,7 @@ implementation {
             dijkstraLoop();
         }
 
-        call LinkState.printRoutingTable();
+        //call LinkState.printRoutingTable();
         signal LinkState.routingTableReady();
     }
 
@@ -68,6 +67,7 @@ implementation {
         int curr = findSmallestWeight();
         neighborPair currNode = call tentative.get(curr);
         int i;
+
         call confirmed.insert(curr, currNode);
         call tentative.remove(curr);
 
@@ -135,13 +135,14 @@ implementation {
     command void LinkState.printRoutingTable() {
         uint32_t* keys = call confirmed.getKeys();
         int i;
+        
         dbg(GENERAL_CHANNEL, "Routing table for %d complete\n", TOS_NODE_ID);
-        printf(" Node | Weight | NextHop | Backup | Backup Weight\n");
+        printf(" Node | NextHop | Weight | Backup | Backup Weight\n");
         printf("--------------------------------------------------\n");
 
         for(i = 0; i < call confirmed.size(); i++) {
             neighborPair current = call confirmed.get(keys[i]);
-            printf("  %d   |   %d    |    %d    |", current.node, current.weight, current.nextHop);
+            printf("  %d   |    %d    |   %d    |", current.node, current.nextHop, current.weight);
             if(current.backupWeight != 100) {
                 printf("   %d    |   %d\n", current.backupNextHop, current.backupWeight);
             } else {

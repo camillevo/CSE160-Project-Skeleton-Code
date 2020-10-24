@@ -27,7 +27,10 @@ implementation {
     Node.CommandHandler -> CommandHandlerC;
 	
 	components NeighborC;
-	Node.Neighbor->NeighborC;
+	Node.Neighbor -> NeighborC;
+
+    components LinkStateC;
+    Node.LinkState ->LinkStateC;
 
     components IpC;
     Node.Ip->IpC;

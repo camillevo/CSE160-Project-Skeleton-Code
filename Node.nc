@@ -20,6 +20,7 @@ module Node{
    uses interface CommandHandler;
    
    uses interface Neighbor;
+   uses interface LinkState;
    uses interface Ip;
 }
 
@@ -56,17 +57,18 @@ implementation{
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, seqNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
-		//call Ip.ping(sendPackage);
+		call Ip.ping(sendPackage);
 	}
 
 	event void Neighbor.neighborsHaveSettled(){}
+	event void LinkState.routingTableReady(){}
 
 	event void CommandHandler.printNeighbors(){
-		//call Neighbor.printNeighbors();
+		call Neighbor.printNeighbors();
 	}
 
 	event void CommandHandler.printRouteTable(){
-		//call LinkState.printRoutingTable();
+		call LinkState.printRoutingTable();
 	}
 
 	event void CommandHandler.printLinkState(){}

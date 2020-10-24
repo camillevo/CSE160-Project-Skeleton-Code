@@ -5,7 +5,7 @@ module IpP{
     uses interface Receive;
     uses interface LinkState;
     uses interface SimpleSend;
-    uses interface Timer<TMilli> as waitForRoutingTable;
+    uses interface List<floodingPacket> as cache;
 }
 
 implementation{
@@ -21,11 +21,11 @@ implementation{
         if(routingTableReady == FALSE) {
             printf("routing table not ready\n");
             // If routing table hasn't been generated, generate it
-            //call LinkState.findShortestPath();
-            //call waitForRoutingTable.startOneShot(1000);
+            call LinkState.findShortestPath();
+            call waitForRoutingTable.startOneShot(1000);
         }
-        //printf("sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
-        //call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
+        printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
+        call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 
     event void waitForRoutingTable.fired() {
@@ -36,17 +36,22 @@ implementation{
 		if(len==sizeof(pack)){
 			pack* myMsg=(pack*) payload;
 
-            if(myMsg->dest == TOS_NODE_ID) {
-                return msg;
-            }
-
 			switch(myMsg->protocol) {
 				case PROTOCOL_LINKSTATE:
                     call LinkState.addLsp(myMsg);
 					break;
-
 			}
+            
+            if(myMsg->dest != TOS_NODE_ID) {
+                call Ip.ping();
+            }
+
+            dbg(GENERAL_CHANNEL, "Packet Received\n");
+			
+			dbg(GENERAL_CHANNEL, "Package Payload: %s\n", myMsg->payload);
 			return msg;
 		}
+		dbg(GENERAL_CHANNEL, "Unknown Packet Type %d\n", len);
+		return msg;
 	}
 }

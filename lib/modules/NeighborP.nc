@@ -46,7 +46,7 @@ implementation {
 			curr.weights[2] = 1;
 			call neighbors.insert(node, curr);
 		}
-		call checkNeighborsSettled.startOneShot(7689);
+		call checkNeighborsSettled.startOneShot(10689);
 	}
 
 	event void checkNeighborsSettled.fired() {
@@ -71,17 +71,17 @@ implementation {
 			}
 		}
 		if(haveNeighborsChanged) {
-			printNeighbors();
+			//printNeighbors();
 			signal Neighbor.neighborsHaveSettled();
 		}
-		call recheckNeighbors.startOneShot(89834);
+		call recheckNeighbors.startOneShot(80834);
 	}
 
 	event void recheckNeighbors.fired() {
 		call Neighbor.startNeighborDiscovery();
 	}
 
-	void printNeighbors() {
+	command void Neighbor.printNeighbors() {
 		int i;
 		uint32_t *keys = call neighbors.getKeys();
 		dbg(GENERAL_CHANNEL, "neighbors: ");

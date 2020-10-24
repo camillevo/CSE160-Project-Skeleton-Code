@@ -14,8 +14,8 @@ implementation{
     IpP.LinkState -> LinkStateC;
 
     components new SimpleSendC(AM_PACK);
-	  IpP.SimpleSend -> SimpleSendC;
+	IpP.SimpleSend -> SimpleSendC;
 
-    components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”
-  	IpP.waitForRoutingTable -> myTimerA;
+	components new ListC(floodingPacket, 20) as list;
+	IpP.cache -> list;
 }

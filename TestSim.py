@@ -145,17 +145,23 @@ def main():
     s.addChannel(s.FLOODING_CHANNEL);
     s.addChannel(s.NEIGHBOR_CHANNEL);
     s.addChannel(s.GENERAL_CHANNEL);
+    s.addChannel(s.ROUTING_CHANNEL);
 
 
     s.runTime(200);
-    # s.neighborDMP(2);
-    # s.routeDMP(3);
+    s.neighborDMP(8);
+    s.runTime(10);
+    s.routeDMP(8);
     s.runTime(20);
     s.ping(3, 9, "3 to 9");
     s.runTime(60);
     s.printer("turning off mote 3");
     s.moteOff(3);
-    s.runTime(100);
+    s.runTime(120);
+    s.neighborDMP(8);
+    s.runTime(10);
+    s.routeDMP(8);
+    s.runTime(10);
     s.ping(4, 9, "4 to 9");
     s.runTime(100);
 

@@ -176,6 +176,14 @@ implementation{
       return FALSE;
    }
 
+   command void Hashmap.clear(){
+      memset(keys, EMPTY_KEY, sizeof(keys));
+      while(numofVals > 0) {
+         map[numofVals].key = 0;
+         numofVals--;
+      }
+   }
+
    command uint32_t* Hashmap.getKeys(){
       return keys;
    }

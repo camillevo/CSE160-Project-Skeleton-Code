@@ -14,6 +14,7 @@ interface Hashmap<t>{
    command t* getPointer(uint32_t k);
    command bool contains(uint32_t key);
    command bool isEmpty();
+   command void clear();
    command uint16_t size();
    command uint32_t * getKeys();
 }
