@@ -16,6 +16,6 @@ implementation{
     components new SimpleSendC(AM_PACK);
 	IpP.SimpleSend -> SimpleSendC;
 
-	components new ListC(floodingPacket, 20) as list;
+	components new ListC(pack, 20) as list;
 	IpP.cache -> list;
 }

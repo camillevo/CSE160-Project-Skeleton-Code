@@ -151,6 +151,22 @@ implementation {
         }
     }
 
+    command void printLSPs() {
+        int i;
+        printf("Recieved LSP's for node %d\n", TOS_NODE_ID);
+        for(i = 0; i < 20; i++) {
+            int y;
+            if(neighborMatrix[i][0] != 0) printf("%d: %d", i, neighborMatrix[i][0]);
+            for(y = 1; y < 20; y++) {
+                if(neighborMatrix[i][y] == 0) {
+                    break;
+                }
+                printf(", %d", neighborMatrix[i][y]);
+            }
+            printf("\n");
+        }
+    }
+
     command int LinkState.getNextHop(int node) {
         return (call confirmed.get(node)).nextHop;
     }

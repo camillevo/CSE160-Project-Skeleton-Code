@@ -6,6 +6,7 @@ interface LinkState{
     //command void dijkstraLoop();
     //command int findSmallestWeight();
     command void printRoutingTable();
+    command void printLSPs();
     //command void nodeDown(uint8_t node);
     command int getNextHop(int node);
     //command int getBackupNextHop(int node);

@@ -57,6 +57,7 @@ implementation{
 		dbg(GENERAL_CHANNEL, "PING EVENT \n");
 		makePack(&sendPackage, TOS_NODE_ID, destination, 5, PROTOCOL_PING, seqNum, payload, PACKET_MAX_PAYLOAD_SIZE);
 		
+		//call LinkState.printRoutingTable();
 		call Ip.ping(sendPackage);
 	}
 

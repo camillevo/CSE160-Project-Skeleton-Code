@@ -97,6 +97,8 @@ implementation {
 			}
 			return msg;
 		}
+		dbg(GENERAL_CHANNEL, "Unknown Packet Type %d\n", len);
+		return msg;
 	}
 	
 }
