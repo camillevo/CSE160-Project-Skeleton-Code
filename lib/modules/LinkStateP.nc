@@ -11,8 +11,8 @@ module LinkStateP {
 
 implementation {
     int sequenceNum = 1;
-    int seqNumCache[20] = {0};
-    uint8_t neighborMatrix[20][20] = {{0}};
+    int seqNumCache[30] = {0};
+    uint8_t neighborMatrix[30][30] = {{0}};
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
     void findShortestPath();
@@ -22,8 +22,8 @@ implementation {
     event void Neighbor.neighborsHaveSettled() {
         pack myPack;
         uint8_t *neighbors = call Neighbor.getNeighborArray();
-        makePack(&myPack, TOS_NODE_ID, 0, 8, PROTOCOL_LINKSTATE, sequenceNum, neighbors, PACKET_MAX_PAYLOAD_SIZE);
-
+        //dbg(GENERAL_CHANNEL, "Neighbors: %d, %d\n", neighbors[0], neighbors[1]);
+        makePack(&myPack, TOS_NODE_ID, 0, 20, PROTOCOL_LINKSTATE, sequenceNum, neighbors, PACKET_MAX_PAYLOAD_SIZE);
         call LinkState.addLsp(&myPack);
         *(&sequenceNum) = sequenceNum + 1;
 	}
@@ -34,15 +34,29 @@ implementation {
         } else {
             seqNumCache[lsp->src] = lsp->seq;
         }
-        memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 20);
+        memcpy(neighborMatrix[lsp->src - 1], lsp->payload, sizeof(uint8_t) * 30);
         call Flooding.floodSend(*lsp, lsp->src, 0);
         // Start a new timer - if no new LSP's come before expiring, then LSPs have settled
-        call myTimer.startOneShot(131948);
+        call myTimer.startOneShot(501948);
     }
 
     event void myTimer.fired() {
+        int i;
         // empty confirmed list before calling findShortestPath();
         call confirmed.clear();
+        if(TOS_NODE_ID < 10) {
+            dbg(GENERAL_CHANNEL, " Got LSPs from ");
+        } else {
+            dbg(GENERAL_CHANNEL, "Got LSPs from ");
+        }
+        for(i = 1; i <= 30; i++) {
+            if(neighborMatrix[i - 1][0] != 0) {
+                printf("%d, ", i);
+            } else {
+                printf("--, ");
+            }
+        }
+        printf("\n");
         findShortestPath();
     }
     
@@ -71,7 +85,7 @@ implementation {
         call confirmed.insert(curr, currNode);
         call tentative.remove(curr);
 
-        for(i = 0; i < 20; i++) {
+        for(i = 0; i < 30; i++) {
             neighborPair currNeighbor;
             if(neighborMatrix[curr - 1][i] == 0) {
                 break;
@@ -151,13 +165,13 @@ implementation {
         }
     }
 
-    command void printLSPs() {
+    command void LinkState.printLSPs() {
         int i;
         printf("Recieved LSP's for node %d\n", TOS_NODE_ID);
-        for(i = 0; i < 20; i++) {
+        for(i = 0; i < 30; i++) {
             int y;
             if(neighborMatrix[i][0] != 0) printf("%d: %d", i, neighborMatrix[i][0]);
-            for(y = 1; y < 20; y++) {
+            for(y = 1; y < 30; y++) {
                 if(neighborMatrix[i][y] == 0) {
                     break;
                 }

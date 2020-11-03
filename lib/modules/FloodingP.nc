@@ -10,12 +10,12 @@ module FloodingP {
 }
 
 implementation {
-	int seqNums[20][20];
+	int seqNums[30][30];
 	bool haveNeighborsSettled = FALSE;
 	
 	bool checkCache(int src, int seqNum) {
 		int i;
-		for(i = 0; i < 20; i++) {
+		for(i = 0; i < 30; i++) {
 			if(seqNums[src - 1][i] == seqNum) {
 				return 0;
 			}
@@ -56,14 +56,17 @@ implementation {
 		if((checkCache(from, x.seq) == 0) || x.TTL < 0) {
 			return;
 		}
-		for(i = 0; i < 20; i++) {
+		for(i = 0; i < 30; i++) {
 			if(destination != 0 && neighbors[i] == destination) {
+				if(x.src == 6) {
+					dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
+				}
 				call SimpleSend.send(x, neighbors[i]);
 				return;
 			}
 		}	
 		
-		for(i = 0; i < 20; i++) {
+		for(i = 0; i < 30; i++) {
 			if(neighbors[i] == from) {
 				continue;
 			}
@@ -71,8 +74,10 @@ implementation {
 			if(neighbors[i] == 0) {
 				return;
 			}
-			
-			call SimpleSend.send(x, neighbors[i]);			
+			if(x.src == 6) {
+					dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
+				}
+			call SimpleSend.send(x, neighbors[i]);	
 		}
 	
 	}

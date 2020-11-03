@@ -10,7 +10,7 @@ module NeighborP {
 }
 
 implementation {
-	uint8_t finalizedNeighbors[20];
+	uint8_t finalizedNeighbors[30] = {0};
 	int movingWindowCurrIndex = 0;
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 	void printNeighbors();
@@ -71,10 +71,10 @@ implementation {
 			}
 		}
 		if(haveNeighborsChanged) {
-			//printNeighbors();
+			//call Neighbor.printNeighbors();
 			signal Neighbor.neighborsHaveSettled();
 		}
-		call recheckNeighbors.startOneShot(80834);
+		call recheckNeighbors.startOneShot(60834);
 	}
 
 	event void recheckNeighbors.fired() {
@@ -94,6 +94,15 @@ implementation {
 	}
 
 	command uint8_t* Neighbor.getNeighborArray() {
+		// if(TOS_NODE_ID == 1) {
+		// 	finalizedNeighbors[0] = 2;
+		// } else if (TOS_NODE_ID == 19) {
+		// 	finalizedNeighbors[0] = 18;
+		// } else {
+		// 	finalizedNeighbors[0] = TOS_NODE_ID + 1;
+		// 	finalizedNeighbors[1] = TOS_NODE_ID - 1;
+		// }
+		// return finalizedNeighbors;
 		int i;
 		int y = 0;
 		uint32_t *keys = call neighbors.getKeys();

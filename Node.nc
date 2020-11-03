@@ -72,7 +72,10 @@ implementation{
 		call LinkState.printRoutingTable();
 	}
 
-	event void CommandHandler.printLinkState(){}
+	event void CommandHandler.printLinkState(){
+		call LinkState.printLSPs();
+		call LinkState.printRoutingTable();
+	}
 
 	event void CommandHandler.printDistanceVector(){}
 

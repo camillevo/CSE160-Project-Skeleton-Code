@@ -36,6 +36,9 @@ implementation{
 
 			switch(myMsg->protocol) {
 				case PROTOCOL_LINKSTATE:
+                    if(myMsg->src == 6) {
+                        dbg(GENERAL_CHANNEL, "Received lsp from 6\n");
+                    }
                     call LinkState.addLsp(myMsg);
 					break;
                 case PROTOCOL_PING:
