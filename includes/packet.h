@@ -18,9 +18,15 @@ enum{
 typedef int integer;
 
 typedef struct lsPacket{
-	int neighbors[20];
-	int seqNum;
+	uint8_t neighbors[20];
+	int node;
 } lsPacket;
+
+typedef struct neighborWeight{
+	int node;
+	int weights[3];
+	bool confirmedNeighbor;
+} neighborWeight;
 
 typedef struct neighborPair{
 	int node;
@@ -38,6 +44,12 @@ typedef nx_struct pack{
 	nx_uint8_t protocol;
 	nx_uint8_t payload[PACKET_MAX_PAYLOAD_SIZE];
 }pack;
+
+typedef struct floodingPacket{
+	pack packToSend;
+	uint16_t frm;
+	uint16_t dest;
+} floodingPacket;
 
 /*
  * logPack

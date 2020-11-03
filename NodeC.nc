@@ -16,33 +16,21 @@ configuration NodeC{
 implementation {
     components MainC;
     components Node;
-    components new AMReceiverC(AM_PACK) as GeneralReceive;
 
 
     Node -> MainC.Boot;
 
-    Node.Receive -> GeneralReceive;
-
     components ActiveMessageC;
     Node.AMControl -> ActiveMessageC;
-
-    components new SimpleSendC(AM_PACK);
-    Node.Sender -> SimpleSendC;
-	
-	components sampleC as sampleMod;
-	Node.sampleMod -> sampleMod;
 
     components CommandHandlerC;
     Node.CommandHandler -> CommandHandlerC;
 	
 	components NeighborC;
-	Node.Neighbor->NeighborC;
-	
-	components FloodingC;
-	Node.Flooding->FloodingC;
-	
+	Node.Neighbor -> NeighborC;
+
     components LinkStateC;
-    Node.LinkState->LinkStateC;
+    Node.LinkState ->LinkStateC;
 
     components IpC;
     Node.Ip->IpC;

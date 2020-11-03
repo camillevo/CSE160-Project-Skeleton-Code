@@ -9,9 +9,6 @@ implementation {
 
 	components NeighborP;
 	Neighbor = NeighborP.Neighbor;
-	
-	components LinkStateC;
-	NeighborP.LinkState -> LinkStateC;
 
 	components RandomC;
 	NeighborP.Random -> RandomC;
@@ -19,11 +16,11 @@ implementation {
 	components new SimpleSendC(AM_PACK);
 	NeighborP.SimpleSend -> SimpleSendC;
 
-	components new ListC(integer, 20);
-	NeighborP.myList -> ListC;
+	components new HashmapC(neighborWeight, 20) as hashmap;
+	NeighborP.neighbors -> hashmap;
 
 	components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”
-	NeighborP.periodicTimerA -> myTimerA; //Wire the interface to the component
+	NeighborP.recheckNeighbors -> myTimerA; //Wire the interface to the component
 
 	components new TimerMilliC() as myTimerB;
 	NeighborP.checkNeighborsSettled -> myTimerB;

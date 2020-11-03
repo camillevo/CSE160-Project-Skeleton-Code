@@ -4,133 +4,115 @@ module NeighborP {
 	provides interface Neighbor;
 	uses interface SimpleSend;
 	uses interface Random;
-	uses interface LinkState;
-	uses interface Timer<TMilli> as periodicTimerA; //Interface that was wired
+	uses interface Timer<TMilli> as recheckNeighbors; //Interface that was wired
 	uses interface Timer<TMilli> as checkNeighborsSettled;
-	uses interface List<integer> as myList;
+	uses interface Hashmap<neighborWeight> as neighbors;
 }
 
 implementation {
-	uint8_t confirmedNeighbors[20] = {0}; //Existing set of neighbors
-	uint8_t neighbors[20] = {0}; // temp set of new neighbors
-	lsPacket myPacket;
-
-	int sequenceNum = 0;
-	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
+	uint8_t finalizedNeighbors[30] = {0};
+	int movingWindowCurrIndex = 0;
+    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
+	void printNeighbors();
 	
-	void resetNeighborArray();
-	void generateLSP();
-	bool detectChange();
-	error_t sendPackets();
 
-	error_t sendPackets(){
+	command void Neighbor.startNeighborDiscovery() {
 		pack neighborDiscoveryPacket;
 		char neighborMessage[] = "ND";
+		int i;
+		uint32_t *keys = call neighbors.getKeys();
 
-		makePack(&neighborDiscoveryPacket, TOS_NODE_ID, AM_BROADCAST_ADDR, 5, PROTOCOL_NEIGHBORDISCOVERY, *(&sequenceNum), (uint8_t*) neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
+		movingWindowCurrIndex = (movingWindowCurrIndex + 1) % 3;
+		for(i = 0; i < call neighbors.size(); i++) {
+			neighborWeight *curr = call neighbors.getPointer(keys[i]);
+			curr->weights[movingWindowCurrIndex] = 0;
+		}
 
+		makePack(&neighborDiscoveryPacket, TOS_NODE_ID, AM_BROADCAST_ADDR, 5, PROTOCOL_NEIGHBORDISCOVERY, 0, (uint8_t*) neighborMessage, PACKET_MAX_PAYLOAD_SIZE);
 		call SimpleSend.send(neighborDiscoveryPacket, AM_BROADCAST_ADDR);
 	}
 
-	command void Neighbor.startNeighborDiscovery() {
-		call periodicTimerA.startPeriodic(1000000 + call Random.rand16()%100000);
-		sendPackets();
-		*(&sequenceNum) = sequenceNum + 1;
-	}
-
-	event void periodicTimerA.fired() {
-		resetNeighborArray();
-		if(TOS_NODE_ID == 2 || TOS_NODE_ID == 6) {dbg(GENERAL_CHANNEL, "time to recheck neighbors\n");}
-		//memcpy(oldNeighbors, neighbors, sizeof(uint8_t)* 20);
-		*(&sequenceNum) = sequenceNum + 1;
-		sendPackets();
+	command void Neighbor.processNeighborResponse(int node) {
+		if(call neighbors.contains(node)) {
+			neighborWeight *currNeighbor = call neighbors.getPointer(node);
+			currNeighbor->weights[movingWindowCurrIndex] = 1;
+		}
+		else {
+			neighborWeight curr;
+			curr.node = node;
+			// If a new node is discovered, make all indicies true
+			curr.weights[0] = 1;
+			curr.weights[1] = 1;
+			curr.weights[2] = 1;
+			call neighbors.insert(node, curr);
+		}
+		call checkNeighborsSettled.startOneShot(10689);
 	}
 
 	event void checkNeighborsSettled.fired() {
-		if(detectChange()) {
-			memcpy(confirmedNeighbors, neighbors, sizeof(uint8_t)* 20);
-			call Neighbor.printNeighbors();
-			signal LinkState.routingTableReady(FALSE);
-			generateLSP();
-		}
-	}
-
-	void generateLSP() {
-		pack lsp;
-		memcpy(myPacket.neighbors, neighbors, sizeof(uint8_t)* 20);
-		myPacket.seqNum = sequenceNum;
-
-		makePack(&lsp, TOS_NODE_ID, 0, 8, PROTOCOL_LINKSTATE, call Random.rand16() % 1000, (uint8_t*) confirmedNeighbors, PACKET_MAX_PAYLOAD_SIZE);
-		call LinkState.addLsp(&lsp);
-
-		*(&sequenceNum) = sequenceNum + 1;
-	}
-
-	bool detectChange() {
-		// We will use a method similar to hashing, but with an array
-		int i = 0;
-		uint8_t temp[20] = {0};
-		
-		while(neighbors[i] > 0) {
-			temp[neighbors[i]] = 1;
-			i++;
-		}
-		//printf("temp[%d, %d, %d, %d, %d, %d, %d, %d, %d]\n", temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8]);
-		for(i = 0; i < 20; i++) {
-			if(neighbors[i] == 0) {
-				if(confirmedNeighbors[i] == 0) { return FALSE; }
-				else { return TRUE; }
-			} 
-			if(temp[confirmedNeighbors[i]] == 0) {
-				call LinkState.nodeDown(confirmedNeighbors[i]);
-				return TRUE;
-			}
-		}
-		return FALSE;
-	}
-	
-	command bool Neighbor.findNeighbor(int x) {
 		int i;
-		int ret;
-		for(i = 0; i < 20; i++) {
-			if (neighbors[i] == (uint8_t) x) {
-				ret = 1;
-				break;
-			}
-			if (neighbors[i] == 0) {
-				neighbors[i] = (uint8_t) x;
-				ret = 0;
-				break;
+		bool haveNeighborsChanged = FALSE;
+		uint32_t *keys = call neighbors.getKeys();
+
+		for(i = 0; i < call neighbors.size(); i++) {
+			neighborWeight *curr = call neighbors.getPointer(keys[i]);
+			float avg = (curr->weights[0] + curr->weights[1] + curr->weights[2]) / (float) 3;
+
+			if(avg > 0.30) {
+				if(curr->confirmedNeighbor != TRUE) {
+					haveNeighborsChanged = TRUE;
+					curr->confirmedNeighbor = TRUE;
+				}
+			} else {
+				if(curr->confirmedNeighbor != FALSE) {
+					haveNeighborsChanged = TRUE;
+					curr->confirmedNeighbor = FALSE;
+				}
 			}
 		}
-		call checkNeighborsSettled.startOneShot(108043);
-		return ret;
+		if(haveNeighborsChanged) {
+			//call Neighbor.printNeighbors();
+			signal Neighbor.neighborsHaveSettled();
+		}
+		call recheckNeighbors.startOneShot(60834);
 	}
-	
+
+	event void recheckNeighbors.fired() {
+		call Neighbor.startNeighborDiscovery();
+	}
+
 	command void Neighbor.printNeighbors() {
 		int i;
-		printf(" - Updated neighbors: %d has neighbors %d", TOS_NODE_ID, neighbors[0]);
-		for (i  = 1; i < 20; i++) {
-			if(neighbors[i] == 0) {
-				break;
+		uint32_t *keys = call neighbors.getKeys();
+		dbg(GENERAL_CHANNEL, "neighbors: ");
+		for(i = 0; i < 6; i++) {
+			if((call neighbors.get(keys[i])).confirmedNeighbor == TRUE) {
+				printf("%d, ", keys[i]);
 			}
-			printf(", %d", neighbors[i]);
 		}
 		printf("\n");
 	}
-	
-	command uint8_t * Neighbor.getNeighborArray() {
-		return confirmedNeighbors;
-	}
 
-	event void LinkState.routingTableReady(bool y) {}
-
-	void resetNeighborArray() {
-		int i = 0;
-		while(neighbors[i] != 0) {
-			neighbors[i] = 0;
-			i++;
+	command uint8_t* Neighbor.getNeighborArray() {
+		// if(TOS_NODE_ID == 1) {
+		// 	finalizedNeighbors[0] = 2;
+		// } else if (TOS_NODE_ID == 19) {
+		// 	finalizedNeighbors[0] = 18;
+		// } else {
+		// 	finalizedNeighbors[0] = TOS_NODE_ID + 1;
+		// 	finalizedNeighbors[1] = TOS_NODE_ID - 1;
+		// }
+		// return finalizedNeighbors;
+		int i;
+		int y = 0;
+		uint32_t *keys = call neighbors.getKeys();
+		for(i = 0; i < call neighbors.size(); i++) {
+			if((call neighbors.get(keys[i])).confirmedNeighbor == TRUE) {
+				finalizedNeighbors[y] = (call neighbors.get(keys[i])).node;
+				y++;
+			}
 		}
+		return finalizedNeighbors;
 	}
 	
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

@@ -1,0 +1,32 @@
+Discussion Questions 
+1.Why do we use a link for the shortest path computation only if it exists in our database in both directions? 
+What would happen if we used a directed link AB when the link BA does not exist?
+    Using neighbor discovery as an example, a neighbor must be able to send to their neighbor and recieve a response
+    back to know that the neighbor exists. However, Dijkstra's algorithm works for directional graphs so the routing 
+    tables would theoretically still work.
+
+2.Does your routing algorithm produce symmetric routes (that follow the same path from X to Y in reverse when going 
+from Y to X)? Why or why not?
+    Not necessarily. Since simpleSend has a degree of randomness, LSA's arrive in a random order for each node.
+    If two weights are the same, Dijkstra's uses the nodes in the order they came in. Therefore, the routes are
+    not symmetric.
+
+3.What would happen if a node advertised itself as having neighbors, but never forwarded packets? 
+How might you modify your implementation to deal with this case?
+    This node could break the whole routing table. Any packet where this node is meant to be a step on the route 
+    would get stuck at this node. If this node never forwarded packets, it's neighbors would not recieve a neighbor
+    reply, and would remove the problematic node from their neighbor lists. The problematic node also wouldn't send 
+    it's LSA to other nodes, and wouldn't be listed as a nextHop for any other nodes on the routing table.
+
+4.What happens if link state packets are lost or corrupted?
+    If link state packets are lost, then not all of the nodes will be able to complete their routing table. The routing
+    table theoretically wouldn't calculate because the node does not have all LSP's, but since none of the nodes know the
+    total amount of nodes, it will still calculate. The neighbors of the node who's LSA was lost will only be accessed through 
+    alternative routes.
+
+5.What would happen if a node alternated between advertising and withdrawing a neighbor, every few milliseconds? 
+How might you modify your implementation to deal with this case?
+    I would keep a count of each node's last response to neighbor discovery packets. When a node receieves a neighbor
+    response, it will compare it to the value of the last neighbor response. If the neighbor responded two times in a row,
+    then the node will advertise the neighbor. If the node did not respond two times in a row, the node will withdraw the 
+    neighbor. If the responses are different, the current status of the node will stay the same.

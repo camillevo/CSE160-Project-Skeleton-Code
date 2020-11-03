@@ -45,7 +45,7 @@ class TestSim:
 
     # Load a topo file and use it.
     def loadTopo(self, topoFile):
-        print 'Creating Topo!'
+        print ('Creating Topo!')
         # Read topology file.
         topoFile = 'topo/'+topoFile
         f = open(topoFile, "r")
@@ -64,7 +64,7 @@ class TestSim:
     # Load a noise file and apply it.
     def loadNoise(self, noiseFile):
         if self.numMote == 0:
-            print "Create a topo first"
+            print ("Create a topo first")
             return;
 
         # Get and Create a Noise Model
@@ -78,12 +78,12 @@ class TestSim:
                 self.t.getNode(i).addNoiseTraceReading(val)
 
         for i in self.moteids:
-            print "Creating noise model for ",i;
+            print "Creating noise model for ", i;
             self.t.getNode(i).createNoiseModel()
 
     def bootNode(self, nodeID):
         if self.numMote == 0:
-            print "Create a topo first"
+            print ("Create a topo first")
             return;
         self.t.getNode(nodeID).bootAtTime(1333*nodeID);
 
@@ -128,35 +128,64 @@ class TestSim:
     def addChannel(self, channelName, out=sys.stdout):
         print 'Adding Channel', channelName;
         self.t.addChannel(channelName, out);
+
+    def testServer(self, destination):
+        self.sendCMD(self.CMD_TEST_SERVER, destination, "server command");
+
+    def testClient(self, destination):
+        self.sendCMD(self.CMD_TEST_CLIENT, destination, "client command");
         
     def printer(msg1, msg2):
-        print msg2;
+        print (msg2);
+
+    def cmdRouteDMP(self, destination):
+        self.sendCMD(self.CMD_LINKSTATE_DUMP, destination, "print routing table");
 
 def main():
     s = TestSim();
     s.runTime(10);
-    s.loadTopo("example.topo");
+    s.loadTopo("demo.topo");
     s.loadNoise("no_noise.txt");
     s.bootAll();
     s.addChannel(s.COMMAND_CHANNEL);
-    s.addChannel(s.FLOODING_CHANNEL);
-    s.addChannel(s.NEIGHBOR_CHANNEL);
+   # s.addChannel(s.FLOODING_CHANNEL);
+   # s.addChannel(s.NEIGHBOR_CHANNEL);
     s.addChannel(s.GENERAL_CHANNEL);
+    s.addChannel(s.ROUTING_CHANNEL);
 
 
+    s.runTime(50);
+    #s.moteOff(8);
+    s.runTime(400);
+    # s.neighborDMP(4);
+    # s.runTime(10);
+    # s.cmdRouteDMP(4);
+    s.routeDMP(2);
     s.runTime(200);
-    s.ping(3, 9, "3 to 9");
-    s.runTime(20);
+    # s.ping(3, 9, "3 to 9");
+    # s.runTime(60);
+    # s.ping(1, 7, "1 to 7");
+    # s.runTime(60);
+    # s.printer("turning off mote 3");
+    # s.moteOff(3);
+    # s.runTime(120);
+    # s.neighborDMP(4);
+    # s.runTime(10);
+    # s.cmdRouteDMP(4);
+    # s.routeDMP(4);
+    # s.runTime(10);
+    # s.ping(8, 1, "8 to 1");
+    # s.runTime(100);
 
-    s.ping(2, 6, "2 to 6");
-    s.runTime(20);
+    # s.ping(2, 6, "2 to 6");
+    # s.runTime(20);
 
-    s.moteOff(3);
-    s.printer("ALERT: turned off mote 3");
+    # s.moteOff(3);
+    # s.printer("ALERT: turned off mote 3");
 
-    s.runTime(100);
-    s.ping(2, 6, "2 to 6");
-    s.runTime(10);
+    # s.runTime(100);
+    # s.ping(2, 6, "2 to 6");
+    # s.runTime(10);
 
 
 if __name__ == '__main__':
