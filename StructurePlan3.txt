@@ -21,8 +21,11 @@ Three-Way Handshake
     2. Send a SYN pack to start connection with random sequence number (x)
     3. When recieved, send a SYN+ACK with my own random sequence number (y) and ACK = x + 1
     4. When SYN+ACK is recieved, send ACK back w sequence number = x + 1 and ACK = y + 1
-    
-     
+
+
+Accept() returns AFTER 3-Way handshake is finished.
+Attempts to connect to this socket should be queued.
+On accept, check the queue if there's any finished connection attempts
 
 
 

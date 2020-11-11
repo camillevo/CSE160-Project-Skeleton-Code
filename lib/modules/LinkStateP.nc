@@ -44,19 +44,19 @@ implementation {
         int i;
         // empty confirmed list before calling findShortestPath();
         call confirmed.clear();
-        if(TOS_NODE_ID < 10) {
-            dbg(GENERAL_CHANNEL, " Got LSPs from ");
-        } else {
-            dbg(GENERAL_CHANNEL, "Got LSPs from ");
-        }
-        for(i = 1; i <= 30; i++) {
-            if(neighborMatrix[i - 1][0] != 0) {
-                printf("%d, ", i);
-            } else {
-                printf("--, ");
-            }
-        }
-        printf("\n");
+        // if(TOS_NODE_ID < 10) {
+        //     dbg(GENERAL_CHANNEL, " Got LSPs from ");
+        // } else {
+        //     dbg(GENERAL_CHANNEL, "Got LSPs from ");
+        // }
+        // for(i = 1; i <= 30; i++) {
+        //     if(neighborMatrix[i - 1][0] != 0) {
+        //         printf("%d, ", i);
+        //     } else {
+        //         printf("--, ");
+        //     }
+        // }
+        // printf("\n");
         findShortestPath();
     }
     

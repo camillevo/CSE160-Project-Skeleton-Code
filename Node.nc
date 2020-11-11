@@ -12,6 +12,7 @@
 #include "includes/CommandMsg.h"
 #include "includes/sendInfo.h"
 #include "includes/channels.h"
+#include "includes/socket.h"
 
 module Node{
    uses interface Boot;
@@ -22,6 +23,7 @@ module Node{
    uses interface Neighbor;
    uses interface LinkState;
    uses interface Ip;
+   uses interface Transport;
 }
 
 implementation{
@@ -35,7 +37,7 @@ implementation{
 	event void Boot.booted(){
 		call AMControl.start();
 		call Neighbor.startNeighborDiscovery();
-		
+        
 		dbg(GENERAL_CHANNEL, "Booted\n");
 	}
 
@@ -79,9 +81,22 @@ implementation{
 
 	event void CommandHandler.printDistanceVector(){}
 
-	event void CommandHandler.setTestServer(){}
+	event void CommandHandler.setTestServer(){
+        socket_t mySocketFD = call Transport.socket();
+        // For initial test purposes, I'll use well-known port 80
+        socket_addr_t myAddress = {.port = (nx_uint8_t) 80, .addr = (nx_uint16_t) TOS_NODE_ID};
+        call Transport.bind(mySocketFD, &myAddress);
+        call Transport.listen(mySocketFD);
+	}
 
-	event void CommandHandler.setTestClient(){}
+	event void CommandHandler.setTestClient(){
+        socket_t mySocketFD = call Transport.socket();
+        socket_addr_t myAddress = {.port = (nx_uint8_t) 80, .addr = (nx_uint16_t) TOS_NODE_ID};
+        call Transport.bind(mySocketFD, &myAddress);
+
+        socket_addr_t destAddress;
+        call Transport.connect();
+	}
 
 	event void CommandHandler.setAppServer(){}
 

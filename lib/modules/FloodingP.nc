@@ -58,9 +58,9 @@ implementation {
 		}
 		for(i = 0; i < 30; i++) {
 			if(destination != 0 && neighbors[i] == destination) {
-				if(x.src == 6) {
-					dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
-				}
+				// if(x.src == 6) {
+				// 	dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
+				// }
 				call SimpleSend.send(x, neighbors[i]);
 				return;
 			}
@@ -74,9 +74,9 @@ implementation {
 			if(neighbors[i] == 0) {
 				return;
 			}
-			if(x.src == 6) {
-					dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
-				}
+			// if(x.src == 6) {
+			// 		dbg(GENERAL_CHANNEL, "Sent 6's lsp to %d\n", neighbors[i]);
+			// 	}
 			call SimpleSend.send(x, neighbors[i]);	
 		}
 	

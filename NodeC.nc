@@ -29,6 +29,9 @@ implementation {
 	components NeighborC;
 	Node.Neighbor -> NeighborC;
 
+    components TransportC;
+    Node.Transport -> TransportC;
+
     components LinkStateC;
     Node.LinkState ->LinkStateC;
 
