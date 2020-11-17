@@ -132,10 +132,12 @@ class TestSim:
         self.t.addChannel(channelName, out);
 
     def testServer(self, address, port):
-        self.sendCMD(self.CMD_TEST_SERVER, address, "server command");
+        self.sendCMD(self.CMD_TEST_SERVER, address, "{0}".format(chr(port)));
 
-    def testClient(self, address, destination, sourcePort, destPort, transfer):
-        self.sendCMD(self.CMD_TEST_CLIENT, address, "client command");
+    def testClient(self, address, sourcePort, destination, destPort, transfer):
+        myList = [destination, sourcePort, destPort, transfer];
+        myString = "{0}{1}{2}{3}".format(chr(destination), chr(sourcePort), chr(destPort), chr(transfer));
+        self.sendCMD(self.CMD_TEST_CLIENT, address, myString);
         
     def printer(msg1, msg2):
         print (msg2);

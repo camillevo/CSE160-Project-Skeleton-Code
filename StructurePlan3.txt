@@ -27,5 +27,28 @@ Accept() returns AFTER 3-Way handshake is finished.
 Attempts to connect to this socket should be queued.
 On accept, check the queue if there's any finished connection attempts
 
+Goal: Complete connect() method. 
+1. SimpleSend, Recieve, and makePack should be in Transport
+2. The header information should include the Source Port, Destination Port, Sequence,
+Acknowledgement, Flags, Advertised Window, Data
+
+3. make new struct called TCPHeader with above fields.
+
+
+typedef nx_struct pack{
+	nx_uint16_t dest;
+	nx_uint16_t src;
+	nx_uint16_t seq;		//Sequence Number
+	nx_uint8_t TTL;		//Time to Live
+	nx_uint8_t protocol;
+	nx_uint8_t payload[PACKET_MAX_PAYLOAD_SIZE];
+}pack;
+
+
+Recieve() will store seqnum, state, and node/Port into a cache
+^ what is the bare minimum to store in the cache?
+can use a 2d cache and store and seq num and port
+accept will check cache and create socket
+
 
 

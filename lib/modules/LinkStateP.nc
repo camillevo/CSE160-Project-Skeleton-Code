@@ -156,9 +156,9 @@ implementation {
 
         for(i = 0; i < call confirmed.size(); i++) {
             neighborPair current = call confirmed.get(keys[i]);
-            printf("  %d   |    %d    |   %d    |", current.node, current.nextHop, current.weight);
+            printf(" %2d   |   %2d    |   %d    |", current.node, current.nextHop, current.weight);
             if(current.backupWeight != 100) {
-                printf("   %d    |   %d\n", current.backupNextHop, current.backupWeight);
+                printf("  %2d    |   %d\n", current.backupNextHop, current.backupWeight);
             } else {
                 printf("   -    |   -\n");
             }

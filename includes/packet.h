@@ -51,6 +51,7 @@ typedef struct floodingPacket{
 	uint16_t dest;
 } floodingPacket;
 
+
 /*
  * logPack
  * 	Sends packet information to the general channel.

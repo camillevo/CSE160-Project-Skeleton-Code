@@ -6,6 +6,7 @@ module IpP{
     uses interface LinkState;
     uses interface SimpleSend;
     uses interface List<pack> as cache;
+    uses interface Transport;
 }
 
 implementation{
@@ -26,7 +27,7 @@ implementation{
         if(routingTableReady == FALSE) {
             call cache.pushback(sendPacket);
         }
-        printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
+        //printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
         call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 
@@ -36,9 +37,6 @@ implementation{
 
 			switch(myMsg->protocol) {
 				case PROTOCOL_LINKSTATE:
-                    // if(myMsg->src == 6) {
-                    //     dbg(GENERAL_CHANNEL, "Received lsp from 6\n");
-                    // }
                     call LinkState.addLsp(myMsg);
 					break;
                 case PROTOCOL_PING:
@@ -48,6 +46,14 @@ implementation{
                     } else {
                         dbg(GENERAL_CHANNEL, "Packet Received\n");
 			            dbg(GENERAL_CHANNEL, "Package Payload: %s\n", myMsg->payload);
+                    }
+                    break;
+                case PROTOCOL_TCP:
+                    if(myMsg->dest != TOS_NODE_ID) {
+                        myMsg->TTL = myMsg->TTL - 1;
+                        call Ip.ping(*myMsg);
+                    } else {
+                        call Transport.receive(myMsg);
                     }
                     break;
 			}

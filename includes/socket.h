@@ -1,6 +1,8 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
+# include "packet.h"
+
 enum{
     MAX_NUM_OF_SOCKETS = 10,
     ROOT_SOCKET_ADDR = 255,
@@ -14,6 +16,13 @@ enum socket_state{
     ESTABLISHED,
     SYN_SENT,
     SYN_RCVD,
+};
+
+enum flags{
+    ACK,
+    SYNACK,
+    SYN,
+    FIN,
 };
 
 
@@ -52,5 +61,22 @@ typedef struct socket_store_t{
     uint16_t RTT;
     uint8_t effectiveWindow;
 }socket_store_t;
+
+
+typedef struct tcpHeader{
+    nx_socket_port_t sourcePort;
+    nx_socket_port_t destPort;
+    uint16_t sequence;
+    uint16_t ack;
+    enum flags flag;
+    uint16_t advertisedWindow;
+    pack data;
+}tcpHeader;
+
+typedef struct connection{
+    uint16_t node;
+    nx_socket_port_t port;
+    int seqNum;
+}connection;
 
 #endif

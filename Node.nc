@@ -81,21 +81,23 @@ implementation{
 
 	event void CommandHandler.printDistanceVector(){}
 
-	event void CommandHandler.setTestServer(){
+	event void CommandHandler.setTestServer(int port){
         socket_t mySocketFD = call Transport.socket();
-        // For initial test purposes, I'll use well-known port 80
-        socket_addr_t myAddress = {.port = (nx_uint8_t) 80, .addr = (nx_uint16_t) TOS_NODE_ID};
+        socket_addr_t myAddress = {.port = (nx_uint8_t) port, .addr = (nx_uint16_t) TOS_NODE_ID};
+
         call Transport.bind(mySocketFD, &myAddress);
         call Transport.listen(mySocketFD);
 	}
 
-	event void CommandHandler.setTestClient(){
+	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
         socket_t mySocketFD = call Transport.socket();
-        socket_addr_t myAddress = {.port = (nx_uint8_t) 80, .addr = (nx_uint16_t) TOS_NODE_ID};
+        socket_addr_t myAddress = {.port = (nx_uint8_t) sourcePort, .addr = (nx_uint16_t) TOS_NODE_ID};
+        socket_addr_t destAddress = {.port = (nx_uint8_t) destPort, .addr = (nx_uint16_t) destination};
+        destAddress.addr = (nx_uint16_t) destination;
+        myAddress.addr = (nx_uint16_t) TOS_NODE_ID; 
         call Transport.bind(mySocketFD, &myAddress);
 
-        socket_addr_t destAddress;
-        call Transport.connect();
+        call Transport.connect(mySocketFD, &destAddress);
 	}
 
 	event void CommandHandler.setAppServer(){}
@@ -109,5 +111,5 @@ implementation{
 		Package->seq = seq;
 		Package->protocol = protocol;
 		memcpy(Package->payload, payload, length);
-	}
+	} 
 }
