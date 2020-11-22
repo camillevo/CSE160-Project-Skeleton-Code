@@ -144,4 +144,14 @@ interface Transport{
     *   to listen else FAIL.
     */
    command error_t listen(socket_t fd);
+
+   /**
+    * Client has gotten a response
+    */
+   event void connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack);
+
+
+   command bool establishSocket(int fd, uint8_t clientPort, uint16_t server, uint8_t serverPort);
+
+   command bool findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
 }

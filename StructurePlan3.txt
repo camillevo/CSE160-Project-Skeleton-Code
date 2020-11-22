@@ -93,23 +93,23 @@ connect (fd) {
 
 accept () {
     look through sockets
-    if any say syn_recieved, make a new socket
-        when you do that, establish the old one
-    now, if there's any established, read what they say
-    adjust bytes read on socket
+    if any have a connection in buffer, then make new socket 
+    if socket is established, then read buffer
 }
+
+//event connectionReady () {
+//    find socket that matches parameters
+//    change socket to established
+//}
 
 receive (pack) {
     if SYN 
-        //add to buffer
-        change socket to syn_recieved
-        fuck it, throw the info in there too
-        send synack
+        add to buffer 
+        send synack 
+
     if SYNACK
-        find socket
-        set it to established
-        make tcpHeader
-        send Ack
+        signal connectionReady
+        send ack
     if ACK 
         put data sent in buffered_data part of socket
         send ACK back

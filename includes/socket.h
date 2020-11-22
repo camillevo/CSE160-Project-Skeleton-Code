@@ -74,8 +74,9 @@ typedef struct tcpHeader{
 }tcpHeader;
 
 typedef struct connection{
-    uint16_t node;
-    nx_socket_port_t port;
+    uint16_t clientNode;
+    nx_socket_port_t clientPort;
+    nx_socket_port_t serverPort;
     int seqNum;
 }connection;
 

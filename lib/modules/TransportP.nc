@@ -16,6 +16,8 @@ implementation{
     
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
     void makeTcpHeader(tcpHeader *myHeader, uint8_t sourcePort, uint8_t destPort, uint16_t sequence, uint16_t ack, enum flags flag, uint16_t advertisedWindow);
+    //socket_t findSocket(uint16_t server, uint8_t serverPort, uint8_t clientPort) {
+
 
     command socket_t Transport.socket() {
         if(call sockets.size() < 10) {
@@ -68,21 +70,59 @@ implementation{
         switch(myHeader->flag) {
             case SYN: {
                 connection myConnection;
-                myConnection.node = package->src;
-                myConnection.port = myHeader->sourcePort;
+                myConnection.clientNode = package->src;
+                myConnection.clientPort = myHeader->sourcePort;
                 myConnection.seqNum = myHeader->sequence;
+                myConnection.serverPort = myHeader->destPort;
+                call attemptedConnections.pushfront(myConnection);
                 dbg(TRANSPORT_CHANNEL, "SYN received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
-                myHeader->sourcePort = myHeader->destPort;
-                myHeader->destPort = myConnection.port;
-                myHeader->sequence = call Random.rand16() % 500;
-                myHeader->flag = SYN;
-
+                makeTcpHeader(
+                    &sendTcpHeader, myHeader->destPort, myConnection.clientPort, call Random.rand16() % 500, 
+                    myConnection.seqNum + 1, SYNACK, 0
+                );
+                makePack(&sendPackage, TOS_NODE_ID, myConnection.clientNode, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
+                call Ip.ping(sendPackage);
+                return SUCCESS;
             }
             break;
+            case SYNACK: {
+                socket_t fd = call Transport.findSocket(myHeader->destPort, package->src, myHeader->sourcePort);
+                socket_store_t *mySocket = call sockets.getPointer(fd);
+                dbg(TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
+                // check if ack is the same as the sequence I sent
+                mySocket->state = ESTABLISHED;
+                dbg(TRANSPORT_CHANNEL, "Connection is established! Can start sending data\n");
+            }
+            break;
         }
         return FAIL;
+    }
+
+    command bool Transport.establishSocket(int fd, uint8_t clientPort, uint16_t server, uint8_t serverPort) {
+        socket_store_t *curr = call sockets.getPointer(fd);
+        if(curr->src.port == clientPort && curr->dest.addr == server && curr->dest.port == serverPort) {
+            curr->state = ESTABLISHED;
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    command socket_t Transport.findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort) {
+        uint32_t *keys = call sockets.getKeys();
+        int i;
+        for(i = call sockets.size() - 1; i >= 0; i--) {
+            socket_store_t curr = call sockets.get(keys[i]);
+            //printf("socket: src port = %d, dest = %d, dest port = %d\n", curr.src.port, curr.dest.addr, curr.dest.port);
+            //printf("tcpHeader: src port = %d, dest = %d, dest port = %d\n", clientPort, server, serverPort);
+            if(curr.src.port == clientPort && curr.dest.addr == server && curr.dest.port == serverPort) {
+                //dbg(TRANSPORT_CHANNEL, "Found socket %d\n", keys[i]);
+                return keys[i];
+            }
+        }
+        dbg(TRANSPORT_CHANNEL, "didn't find socket :/\n");
+        return (uint8_t) 0;
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen) {
@@ -91,6 +131,7 @@ implementation{
 
     command error_t Transport.connect(socket_t fd, socket_addr_t * address) {
         socket_store_t *currSocket = call sockets.getPointer(fd);
+        currSocket->dest = *address;
         makeTcpHeader(&sendTcpHeader, currSocket->src.port, address->port, call Random.rand16() % 500, 0, SYN, 0);
 
         makePack(&sendPackage, TOS_NODE_ID, (uint16_t) address->addr, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);

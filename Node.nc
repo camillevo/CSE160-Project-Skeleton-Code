@@ -94,6 +94,15 @@ implementation{
         call acceptTimer.startOneShot(6587);
 	}
 
+    event void Transport.connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack) {
+        // iterate through array to find the socket that matches
+        // change that socket to established
+        int i;
+        for(i = 0; i < 5; i++) {
+            //socket_store_t curr = call 
+        }
+    }
+
 	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
         int i = 0;
         socket_t mySocketFD = call Transport.socket();
