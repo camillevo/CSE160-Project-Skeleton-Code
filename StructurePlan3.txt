@@ -50,5 +50,67 @@ Recieve() will store seqnum, state, and node/Port into a cache
 can use a 2d cache and store and seq num and port
 accept will check cache and create socket
 
+Goal for before dinner: 
+1. receive send packet back out
+2. make timer for accept()
+3. accept goes and checks list
 
+------------------------------------------------------------------------------------------------------------------
 
+Camille's plan as of Friday, 11/20 at 11:30pm
+
+Node
+testClient (sourceport, dest, destport, transfer) {
+    socket() and bind()
+    add transfer and fd to an array (hopefulConnections maybe?)
+    call connect()
+    start timer
+}
+
+connect timer fires {
+    go through array and check if connection is established
+    if it is, write data to buffer
+    subtract what you wrote from array 
+    start timer again if there is anything left
+} 
+
+testServer {
+    socket() and bind()
+    start timer 
+}
+
+accept timer {
+    call accept
+    if you return something, read it
+}
+
+Transport
+connect (fd) {
+    make tcpHeader 
+    send header
+    change socket to SYN_SENT
+}
+
+accept () {
+    look through sockets
+    if any say syn_recieved, make a new socket
+        when you do that, establish the old one
+    now, if there's any established, read what they say
+    adjust bytes read on socket
+}
+
+receive (pack) {
+    if SYN 
+        //add to buffer
+        change socket to syn_recieved
+        fuck it, throw the info in there too
+        send synack
+    if SYNACK
+        find socket
+        set it to established
+        make tcpHeader
+        send Ack
+    if ACK 
+        put data sent in buffered_data part of socket
+        send ACK back
+}

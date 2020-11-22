@@ -41,7 +41,7 @@ implementation {
     }
 
     event void myTimer.fired() {
-        int i;
+        //int i;
         // empty confirmed list before calling findShortestPath();
         call confirmed.clear();
         // if(TOS_NODE_ID < 10) {

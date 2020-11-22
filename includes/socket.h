@@ -70,7 +70,7 @@ typedef struct tcpHeader{
     uint16_t ack;
     enum flags flag;
     uint16_t advertisedWindow;
-    pack data;
+    uint8_t payload[PACKET_MAX_PAYLOAD_SIZE];
 }tcpHeader;
 
 typedef struct connection{

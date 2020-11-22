@@ -15,21 +15,24 @@
 #include "includes/socket.h"
 
 module Node{
-   uses interface Boot;
+    uses interface Boot;
 
-   uses interface SplitControl as AMControl;
-   uses interface CommandHandler;
-   
-   uses interface Neighbor;
-   uses interface LinkState;
-   uses interface Ip;
-   uses interface Transport;
+    uses interface SplitControl as AMControl;
+    uses interface CommandHandler;
+    uses interface Timer<TMilli> as connectTimer;
+    uses interface Timer<TMilli> as acceptTimer;
+
+    uses interface Neighbor;
+    uses interface LinkState;
+    uses interface Ip;
+    uses interface Transport;
 }
 
 implementation{
 	pack sendPackage;
 	int seqNum = 0;
 	int * sequenceNum = &seqNum;
+    int messageCache[5][2] = {{0}};
 
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
@@ -87,18 +90,41 @@ implementation{
 
         call Transport.bind(mySocketFD, &myAddress);
         call Transport.listen(mySocketFD);
+
+        call acceptTimer.startOneShot(6587);
 	}
 
 	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
+        int i = 0;
         socket_t mySocketFD = call Transport.socket();
-        socket_addr_t myAddress = {.port = (nx_uint8_t) sourcePort, .addr = (nx_uint16_t) TOS_NODE_ID};
-        socket_addr_t destAddress = {.port = (nx_uint8_t) destPort, .addr = (nx_uint16_t) destination};
+        socket_addr_t myAddress = {.port = (nx_uint8_t) sourcePort};
+        socket_addr_t destAddress = {.port = (nx_uint8_t) destPort};
         destAddress.addr = (nx_uint16_t) destination;
         myAddress.addr = (nx_uint16_t) TOS_NODE_ID; 
+       
         call Transport.bind(mySocketFD, &myAddress);
 
+        // Add fd and message to cache
+        for(i = 0; i < 5; i++) {
+            if(messageCache[i][0] == 0) {
+                messageCache[i][0] = (int) mySocketFD;
+                messageCache[i][1] = transfer;
+                break;
+            }
+        }
+
         call Transport.connect(mySocketFD, &destAddress);
+
+        call connectTimer.startOneShot(5968);
 	}
+
+    event void connectTimer.fired() {
+        // do nothing for now
+    }
+
+    event void acceptTimer.fired() {
+        // do nothing
+    }
 
 	event void CommandHandler.setAppServer(){}
 
