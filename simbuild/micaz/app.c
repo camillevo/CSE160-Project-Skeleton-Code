@@ -797,7 +797,7 @@ extern void *malloc(size_t __size) __attribute((__leaf__)) __attribute((__nothro
 #line 483
 extern void free(void *__ptr) __attribute((__leaf__)) __attribute((__nothrow__)) ;
 #line 742
-typedef int (*__compar_fn_t)(const void *arg_0x7f514d73b020, const void *arg_0x7f514d73b320);
+typedef int (*__compar_fn_t)(const void *arg_0x7fcf07e70020, const void *arg_0x7fcf07e70320);
 #line 780
 __extension__ 
 #line 797
@@ -818,7 +818,7 @@ extern double fabs(double __x) __attribute((__leaf__)) __attribute((__nothrow__)
 
 extern double floor(double __x) __attribute((__leaf__)) __attribute((__nothrow__)) __attribute((const)) ;
 #line 250
-extern double erfc(double arg_0x7f514d6b35e0) __attribute((__leaf__)) __attribute((__nothrow__)) ;
+extern double erfc(double arg_0x7fcf07de85e0) __attribute((__leaf__)) __attribute((__nothrow__)) ;
 #line 326
 __extension__ 
 
@@ -1221,8 +1221,8 @@ typedef struct hashtable hashtable_t;
 #line 78
 struct hashtable *
 create_hashtable(unsigned int minsize, 
-unsigned int (*hashfunction)(void *arg_0x7f514d4563a0), 
-int (*key_eq_fn)(void *arg_0x7f514d456b70, void *arg_0x7f514d456e30));
+unsigned int (*hashfunction)(void *arg_0x7fcf07b8b3a0), 
+int (*key_eq_fn)(void *arg_0x7fcf07b8bb70, void *arg_0x7fcf07b8be30));
 #line 103
 #line 102
 int 
@@ -1838,7 +1838,7 @@ struct tm;
 
 struct tm;
 # 46 "/opt/tinyos-main/tos/lib/tossim/randomlib.h"
-static inline void RandomInitialise(int arg_0x7f514d243c00, int arg_0x7f514d243e80);
+static inline void RandomInitialise(int arg_0x7fcf07978c00, int arg_0x7fcf07978e80);
 static double RandomUniform(void );
 # 51 "/opt/tinyos-main/tos/lib/tossim/sim_noise.c"
 int numCase1 = 0;
@@ -4357,11 +4357,11 @@ static error_t PlatformC__Init__init(void );
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static error_t SimSchedulerBasicP__TaskBasic__postTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f514d117020);
+uint8_t arg_0x7fcf0784c020);
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static void SimSchedulerBasicP__TaskBasic__default__runTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f514d117020);
+uint8_t arg_0x7fcf0784c020);
 # 57 "/opt/tinyos-main/tos/interfaces/Scheduler.nc"
 static void SimSchedulerBasicP__Scheduler__init(void );
 
@@ -4404,7 +4404,7 @@ static long long int SimMoteP__SimMote__getStartTime(void );
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static error_t TossimActiveMessageC__AMSend__send(
 # 47 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf48c70, 
+am_id_t arg_0x7fcf0767dc70, 
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 am_addr_t addr, 
 #line 71
@@ -4427,7 +4427,7 @@ message_t *
 
 TossimActiveMessageC__Snoop__default__receive(
 # 49 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf2da50, 
+am_id_t arg_0x7fcf07662a50, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -4474,7 +4474,7 @@ message_t *
 
 TossimActiveMessageC__Receive__default__receive(
 # 48 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf2ee30, 
+am_id_t arg_0x7fcf07663e30, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -4725,15 +4725,15 @@ static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__TimerFrom__f
 #line 83
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f514c920950);
+uint8_t arg_0x7fcf0704c950);
 # 92 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static bool /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__isRunning(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f514c920950);
+uint8_t arg_0x7fcf0704c950);
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f514c920950, 
+uint8_t arg_0x7fcf0704c950, 
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 uint32_t dt);
 # 82 "/opt/tinyos-main/tos/lib/timer/Counter.nc"
@@ -4801,7 +4801,7 @@ error_t error);
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(
 # 48 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-am_id_t arg_0x7f514c7c14d0, 
+am_id_t arg_0x7fcf06eed4d0, 
 # 103 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 message_t * msg, 
 
@@ -4814,7 +4814,7 @@ error_t error);
 # 75 "/opt/tinyos-main/tos/interfaces/Send.nc"
 static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__send(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f514c7c32a0, 
+uint8_t arg_0x7fcf06eee2a0, 
 # 67 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -4828,7 +4828,7 @@ uint8_t len);
 #line 100
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f514c7c32a0, 
+uint8_t arg_0x7fcf06eee2a0, 
 # 96 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -4904,6 +4904,8 @@ static error_t TransportP__Transport__bind(socket_t fd, socket_addr_t *addr);
 static socket_t TransportP__Transport__socket(void );
 #line 113
 static error_t TransportP__Transport__connect(socket_t fd, socket_addr_t *address);
+#line 55
+static socket_t TransportP__Transport__accept(socket_t fd);
 #line 156
 static bool TransportP__Transport__findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
 # 13 "dataStructures/interfaces/Hashmap.nc"
@@ -4924,7 +4926,14 @@ static bool /*TransportC.SampleMap*/HashmapC__1__Hashmap__contains(uint32_t key)
 
 
 static uint16_t /*TransportC.SampleMap*/HashmapC__1__Hashmap__size(void );
-# 18 "dataStructures/interfaces/List.nc"
+# 25 "dataStructures/interfaces/List.nc"
+static uint16_t /*TransportC.SampleList*/ListC__0__List__size(void );
+#line 17
+static void /*TransportC.SampleList*/ListC__0__List__pushback(/*TransportC.SampleList*/ListC__0__List__t input);
+
+
+static /*TransportC.SampleList*/ListC__0__List__t /*TransportC.SampleList*/ListC__0__List__popfront(void );
+#line 18
 static void /*TransportC.SampleList*/ListC__0__List__pushfront(/*TransportC.SampleList*/ListC__0__List__t input);
 # 13 "lib/interfaces/LinkState.nc"
 static void IpP__LinkState__routingTableReady(void );
@@ -5213,7 +5222,7 @@ int sim_main_start_mote(void )   ;
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 static void SimSchedulerBasicP__TaskBasic__runTask(
 # 49 "/opt/tinyos-main/tos/lib/tossim/SimSchedulerBasicP.nc"
-uint8_t arg_0x7f514d117020);
+uint8_t arg_0x7fcf0784c020);
 
 
 
@@ -5401,7 +5410,7 @@ static am_addr_t TossimActiveMessageC__amAddress(void );
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static void TossimActiveMessageC__AMSend__sendDone(
 # 47 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf48c70, 
+am_id_t arg_0x7fcf0767dc70, 
 # 103 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 message_t * msg, 
 
@@ -5420,7 +5429,7 @@ message_t *
 
 TossimActiveMessageC__Snoop__receive(
 # 49 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf2da50, 
+am_id_t arg_0x7fcf07662a50, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -5439,7 +5448,7 @@ message_t *
 
 TossimActiveMessageC__Receive__receive(
 # 48 "/opt/tinyos-main/tos/lib/tossim/TossimActiveMessageC.nc"
-am_id_t arg_0x7f514cf2ee30, 
+am_id_t arg_0x7fcf07663e30, 
 # 71 "/opt/tinyos-main/tos/interfaces/Receive.nc"
 message_t * msg, 
 void * payload, 
@@ -5832,6 +5841,8 @@ static error_t Node__Transport__bind(socket_t fd, socket_addr_t *addr);
 static socket_t Node__Transport__socket(void );
 #line 113
 static error_t Node__Transport__connect(socket_t fd, socket_addr_t *address);
+#line 55
+static socket_t Node__Transport__accept(socket_t fd);
 # 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
 static void Node__acceptTimer__startOneShot(uint32_t dt);
 # 5 "lib/interfaces/Neighbor.nc"
@@ -5901,21 +5912,15 @@ static inline void Node__CommandHandler__printLinkState(void );
 
 
 static inline void Node__CommandHandler__setTestServer(int port);
-#line 106
+#line 110
 static inline void Node__CommandHandler__setTestClient(int destination, int sourcePort, int destPort, int transfer);
-#line 130
+#line 134
 static inline void Node__connectTimer__fired(void );
 
 
 
 static inline void Node__acceptTimer__fired(void );
-
-
-
-
-
-
-
+#line 169
 static inline void Node__makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 # 97 "/opt/tinyos-main/tos/interfaces/Pool.nc"
 static 
@@ -6358,7 +6363,7 @@ static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__TimerFrom__s
 
 static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(
 # 48 "/opt/tinyos-main/tos/lib/timer/VirtualizeTimerC.nc"
-uint8_t arg_0x7f514c920950);
+uint8_t arg_0x7fcf0704c950);
 #line 71
 enum /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0____nesc_unnamed4347 {
 #line 71
@@ -6635,7 +6640,7 @@ static inline void /*NeighborC.SimpleSendC.AMSenderC.SenderC.AMQueueEntryP*/AMQu
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(
 # 48 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-am_id_t arg_0x7f514c7c14d0, 
+am_id_t arg_0x7fcf06eed4d0, 
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
 am_addr_t addr, 
 #line 71
@@ -6652,7 +6657,7 @@ uint8_t len);
 # 100 "/opt/tinyos-main/tos/interfaces/Send.nc"
 static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(
 # 46 "/opt/tinyos-main/tos/system/AMQueueImplP.nc"
-uint8_t arg_0x7f514c7c32a0, 
+uint8_t arg_0x7fcf06eee2a0, 
 # 96 "/opt/tinyos-main/tos/interfaces/Send.nc"
 message_t * msg, 
 
@@ -6846,7 +6851,14 @@ static bool TransportP__sockets__contains(uint32_t key);
 static uint16_t TransportP__sockets__size(void );
 # 52 "/opt/tinyos-main/tos/interfaces/Random.nc"
 static uint16_t TransportP__Random__rand16(void );
-# 18 "dataStructures/interfaces/List.nc"
+# 25 "dataStructures/interfaces/List.nc"
+static uint16_t TransportP__attemptedConnections__size(void );
+#line 17
+static void TransportP__attemptedConnections__pushback(TransportP__attemptedConnections__t input);
+
+
+static TransportP__attemptedConnections__t TransportP__attemptedConnections__popfront(void );
+#line 18
 static void TransportP__attemptedConnections__pushfront(TransportP__attemptedConnections__t input);
 # 5 "lib/interfaces/Ip.nc"
 static void TransportP__Ip__ping(pack sendPacket);
@@ -6868,13 +6880,24 @@ static socket_t TransportP__Transport__socket(void );
 
 
 static error_t TransportP__Transport__bind(socket_t fd, socket_addr_t *addr);
-#line 67
+
+
+
+
+
+
+
+
+
+
+static inline socket_t TransportP__Transport__accept(socket_t fd);
+#line 78
 static inline error_t TransportP__Transport__receive(pack *package);
-#line 112
+#line 138
 static inline socket_t TransportP__Transport__findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
-#line 132
+#line 155
 static inline error_t TransportP__Transport__connect(socket_t fd, socket_addr_t *address);
-#line 153
+#line 179
 static inline error_t TransportP__Transport__listen(socket_t fd);
 
 
@@ -6921,7 +6944,7 @@ static inline uint32_t /*TransportC.SampleMap*/HashmapC__1__hash(uint32_t k, uin
 
 
 
-static inline void /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(uint32_t k, /*TransportC.SampleMap*/HashmapC__1__t input);
+static void /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(uint32_t k, /*TransportC.SampleMap*/HashmapC__1__t input);
 #line 130
 static inline /*TransportC.SampleMap*/HashmapC__1__t /*TransportC.SampleMap*/HashmapC__1__Hashmap__get(uint32_t k);
 #line 143
@@ -6940,7 +6963,7 @@ uint16_t /*TransportC.SampleList*/ListC__0__MAX_SIZE[1000];
 /*TransportC.SampleList*/ListC__0__t /*TransportC.SampleList*/ListC__0__container[1000][10];
 uint16_t /*TransportC.SampleList*/ListC__0__size[1000];
 
-
+static inline void /*TransportC.SampleList*/ListC__0__List__pushback(/*TransportC.SampleList*/ListC__0__t input);
 
 
 
@@ -6950,6 +6973,10 @@ uint16_t /*TransportC.SampleList*/ListC__0__size[1000];
 
 
 static inline void /*TransportC.SampleList*/ListC__0__List__pushfront(/*TransportC.SampleList*/ListC__0__t input);
+#line 64
+static inline /*TransportC.SampleList*/ListC__0__t /*TransportC.SampleList*/ListC__0__List__popfront(void );
+#line 97
+static inline uint16_t /*TransportC.SampleList*/ListC__0__List__size(void );
 # 4 "lib/interfaces/SimpleSend.nc"
 static error_t IpP__SimpleSend__send(pack msg, uint16_t dest);
 # 11 "lib/interfaces/LinkState.nc"
@@ -8178,6 +8205,13 @@ static __inline  uint16_t __nesc_ntoh_uint16(const void * source)
   return ((uint16_t )base[0] << 8) | base[1];
 }
 
+# 5 "lib/interfaces/Ip.nc"
+inline static void TransportP__Ip__ping(pack sendPacket){
+#line 5
+  IpP__Ip__ping(sendPacket);
+#line 5
+}
+#line 5
 # 14 "dataStructures/interfaces/Hashmap.nc"
 inline static TransportP__sockets__t *TransportP__sockets__getPointer(uint32_t k){
 #line 14
@@ -8300,22 +8334,19 @@ inline static uint32_t *TransportP__sockets__getKeys(void ){
 #line 19
 }
 #line 19
-# 112 "lib/modules/TransportP.nc"
+# 138 "lib/modules/TransportP.nc"
 static inline socket_t TransportP__Transport__findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort)
-#line 112
+#line 138
 {
   uint32_t *keys = TransportP__sockets__getKeys();
   int i;
 
-#line 115
+#line 141
   for (i = TransportP__sockets__size() - 1; i >= 0; i--) {
       socket_store_t curr = TransportP__sockets__get(keys[i]);
 
-#line 117
-      printf("socket: src port = %d, dest = %d, dest port = %d\n", __nesc_ntoh_uint8(curr.src.port.nxdata), __nesc_ntoh_uint16(curr.dest.addr.nxdata), __nesc_ntoh_uint8(curr.dest.port.nxdata));
-      printf("tcpHeader: src port = %d, dest = %d, dest port = %d\n", clientPort, server, serverPort);
+#line 143
       if (__nesc_ntoh_uint8(curr.src.port.nxdata) == clientPort && __nesc_ntoh_uint16(curr.dest.addr.nxdata) == server && __nesc_ntoh_uint8(curr.dest.port.nxdata) == serverPort) {
-          sim_log_debug(188U, TRANSPORT_CHANNEL, "Found socket %d\n", keys[i]);
           return keys[i];
         }
     }
@@ -8323,13 +8354,6 @@ static inline socket_t TransportP__Transport__findSocket(uint8_t clientPort, uin
   return (uint8_t )0;
 }
 
-# 5 "lib/interfaces/Ip.nc"
-inline static void TransportP__Ip__ping(pack sendPacket){
-#line 5
-  IpP__Ip__ping(sendPacket);
-#line 5
-}
-#line 5
 # 89 "/opt/tinyos-main/tos/system/RandomMlcgC.nc"
 static inline uint16_t RandomMlcgC__Random__rand16(void )
 #line 89
@@ -8376,9 +8400,9 @@ inline static void TransportP__attemptedConnections__pushfront(TransportP__attem
 #line 18
 }
 #line 18
-# 67 "lib/modules/TransportP.nc"
+# 78 "lib/modules/TransportP.nc"
 static inline error_t TransportP__Transport__receive(pack *package)
-#line 67
+#line 78
 {
   tcpHeader *myHeader = package->payload;
 
@@ -8386,7 +8410,7 @@ static inline error_t TransportP__Transport__receive(pack *package)
       case SYN: {
           connection myConnection;
 
-#line 73
+#line 84
           myConnection.clientNode = __nesc_ntoh_uint16(package->src.nxdata);
           __nesc_hton_uint8(myConnection.clientPort.nxdata, __nesc_ntoh_uint8(myHeader->sourcePort.nxdata));
           myConnection.seqNum = myHeader->sequence;
@@ -8407,14 +8431,29 @@ static inline error_t TransportP__Transport__receive(pack *package)
           socket_t fd = TransportP__Transport__findSocket(__nesc_ntoh_uint8(myHeader->destPort.nxdata), __nesc_ntoh_uint16(package->src.nxdata), __nesc_ntoh_uint8(myHeader->sourcePort.nxdata));
           socket_store_t *mySocket = TransportP__sockets__getPointer(fd);
 
-#line 92
+#line 103
           sim_log_debug(186U, TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", __nesc_ntoh_uint16(package->src.nxdata), __nesc_ntoh_uint8(myHeader->sourcePort.nxdata));
 
 
+          if (myHeader->ack != mySocket->lastSent + 1) {
+              return FAIL;
+            }
+          mySocket->nextExpected = myHeader->sequence + 1;
+          mySocket->lastAck = myHeader->ack;
           mySocket->state = ESTABLISHED;
           sim_log_debug(187U, TRANSPORT_CHANNEL, "Connection is established! Can start sending data\n");
+
+
+          TransportP__makeTcpHeader(&TransportP__sendTcpHeader[sim_node()], __nesc_ntoh_uint8(myHeader->destPort.nxdata), __nesc_ntoh_uint8(myHeader->sourcePort.nxdata), 3, myHeader->sequence + 1, ACK, 0);
+          TransportP__makePack(&TransportP__sendPackage[sim_node()], TOS_NODE_ID, __nesc_ntoh_uint16(package->src.nxdata), 20, PROTOCOL_TCP, TransportP__sendTcpHeader[sim_node()].sequence, (uint8_t *)&TransportP__sendTcpHeader[sim_node()], PACKET_MAX_PAYLOAD_SIZE);
+          TransportP__Ip__ping(TransportP__sendPackage[sim_node()]);
+          return SUCCESS;
         }
       break;
+      case ACK: {
+
+          sim_log_debug(188U, TRANSPORT_CHANNEL, "ACK received from Node %d, port %d\n", __nesc_ntoh_uint16(package->src.nxdata), __nesc_ntoh_uint8(myHeader->sourcePort.nxdata));
+        }
     }
   return FAIL;
 }
@@ -8759,13 +8798,13 @@ static inline message_t *TossimActiveMessageC__Receive__default__receive(am_id_t
 }
 
 # 78 "/opt/tinyos-main/tos/interfaces/Receive.nc"
-inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7f514cf2ee30, message_t * msg, void * payload, uint8_t len){
+inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7fcf07663e30, message_t * msg, void * payload, uint8_t len){
 #line 78
   nx_struct message_t *__nesc_result;
 #line 78
 
 #line 78
-  switch (arg_0x7f514cf2ee30) {
+  switch (arg_0x7fcf07663e30) {
 #line 78
     case 6:
 #line 78
@@ -8783,7 +8822,7 @@ inline static message_t * TossimActiveMessageC__Receive__receive(am_id_t arg_0x7
 #line 78
     default:
 #line 78
-      __nesc_result = TossimActiveMessageC__Receive__default__receive(arg_0x7f514cf2ee30, msg, payload, len);
+      __nesc_result = TossimActiveMessageC__Receive__default__receive(arg_0x7fcf07663e30, msg, payload, len);
 #line 78
       break;
 #line 78
@@ -9356,13 +9395,13 @@ static inline message_t *TossimActiveMessageC__Snoop__default__receive(am_id_t i
 }
 
 # 78 "/opt/tinyos-main/tos/interfaces/Receive.nc"
-inline static message_t * TossimActiveMessageC__Snoop__receive(am_id_t arg_0x7f514cf2da50, message_t * msg, void * payload, uint8_t len){
+inline static message_t * TossimActiveMessageC__Snoop__receive(am_id_t arg_0x7fcf07662a50, message_t * msg, void * payload, uint8_t len){
 #line 78
   nx_struct message_t *__nesc_result;
 #line 78
 
 #line 78
-    __nesc_result = TossimActiveMessageC__Snoop__default__receive(arg_0x7f514cf2da50, msg, payload, len);
+    __nesc_result = TossimActiveMessageC__Snoop__default__receive(arg_0x7fcf07662a50, msg, payload, len);
 #line 78
 
 #line 78
@@ -9554,9 +9593,9 @@ static __inline  int8_t __nesc_hton_int8(void * target, int8_t value)
 }
 
 # 110 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
-inline static void TossimActiveMessageC__AMSend__sendDone(am_id_t arg_0x7f514cf48c70, message_t * msg, error_t error){
+inline static void TossimActiveMessageC__AMSend__sendDone(am_id_t arg_0x7fcf0767dc70, message_t * msg, error_t error){
 #line 110
-  /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(arg_0x7f514cf48c70, msg, error);
+  /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__sendDone(arg_0x7fcf0767dc70, msg, error);
 #line 110
 }
 #line 110
@@ -9659,20 +9698,13 @@ inline static error_t CommandHandlerP__Pool__put(CommandHandlerP__Pool__t * newV
 #line 89
 }
 #line 89
-# 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
-inline static void Node__acceptTimer__startOneShot(uint32_t dt){
-#line 73
-  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(1U, dt);
-#line 73
-}
-#line 73
-# 153 "lib/modules/TransportP.nc"
+# 179 "lib/modules/TransportP.nc"
 static inline error_t TransportP__Transport__listen(socket_t fd)
-#line 153
+#line 179
 {
   socket_store_t *mySocket = TransportP__sockets__getPointer((uint32_t )fd);
 
-#line 155
+#line 181
   mySocket->state = LISTEN;
   return SUCCESS;
 }
@@ -9726,13 +9758,22 @@ inline static socket_t Node__Transport__socket(void ){
 static inline void Node__CommandHandler__setTestServer(int port)
 #line 87
 {
+  int i;
   socket_t mySocketFD = Node__Transport__socket();
   socket_addr_t myAddress = { .port = (unsigned char )port, .addr = (unsigned short )TOS_NODE_ID };
 
   Node__Transport__bind(mySocketFD, &myAddress);
   Node__Transport__listen(mySocketFD);
 
-  Node__acceptTimer__startOneShot(6587);
+  for (i = 0; i < 5; i++) {
+      if (Node__messageCache[sim_node()][i][0] == 0) {
+
+          Node__messageCache[sim_node()][i][0] = (int )mySocketFD;
+          break;
+        }
+    }
+
+  Node__acceptTimer__startOneShot(15968);
 }
 
 # 8 "lib/interfaces/CommandHandler.nc"
@@ -9749,15 +9790,18 @@ inline static void Node__connectTimer__startOneShot(uint32_t dt){
 #line 73
 }
 #line 73
-# 132 "lib/modules/TransportP.nc"
+# 155 "lib/modules/TransportP.nc"
 static inline error_t TransportP__Transport__connect(socket_t fd, socket_addr_t *address)
-#line 132
+#line 155
 {
   socket_store_t *currSocket = TransportP__sockets__getPointer(fd);
 
-#line 134
+#line 157
   currSocket->dest = *address;
-  TransportP__makeTcpHeader(&TransportP__sendTcpHeader[sim_node()], __nesc_ntoh_uint8(currSocket->src.port.nxdata), __nesc_ntoh_uint8(address->port.nxdata), TransportP__Random__rand16() % 500, 0, SYN, 0);
+  currSocket->lastWritten = TransportP__Random__rand16() % 500;
+  currSocket->lastSent = currSocket->lastWritten;
+  currSocket->lastAck = currSocket->lastWritten;
+  TransportP__makeTcpHeader(&TransportP__sendTcpHeader[sim_node()], __nesc_ntoh_uint8(currSocket->src.port.nxdata), __nesc_ntoh_uint8(address->port.nxdata), currSocket->lastSent, 0, SYN, 0);
 
   TransportP__makePack(&TransportP__sendPackage[sim_node()], TOS_NODE_ID, (uint16_t )__nesc_ntoh_uint16(address->addr.nxdata), 20, PROTOCOL_TCP, TransportP__sendTcpHeader[sim_node()].sequence, (uint8_t *)&TransportP__sendTcpHeader[sim_node()], PACKET_MAX_PAYLOAD_SIZE);
   TransportP__Ip__ping(TransportP__sendPackage[sim_node()]);
@@ -9782,16 +9826,16 @@ inline static error_t Node__Transport__connect(socket_t fd, socket_addr_t *addre
 #line 113
 }
 #line 113
-# 106 "Node.nc"
+# 110 "Node.nc"
 static inline void Node__CommandHandler__setTestClient(int destination, int sourcePort, int destPort, int transfer)
-#line 106
+#line 110
 {
   int i = 0;
   socket_t mySocketFD = Node__Transport__socket();
   socket_addr_t myAddress = { .port = (unsigned char )sourcePort };
   socket_addr_t destAddress = { .port = (unsigned char )destPort };
 
-#line 111
+#line 115
   __nesc_hton_uint16(destAddress.addr.nxdata, (unsigned short )destination);
   __nesc_hton_uint16(myAddress.addr.nxdata, (unsigned short )TOS_NODE_ID);
 
@@ -9970,9 +10014,9 @@ inline static void Node__Ip__ping(pack sendPacket){
 #line 5
 }
 #line 5
-# 142 "Node.nc"
+# 169 "Node.nc"
 static inline void Node__makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t *payload, uint8_t length)
-#line 142
+#line 169
 {
   __nesc_hton_uint16(Package->src.nxdata, src);
   __nesc_hton_uint16(Package->dest.nxdata, dest);
@@ -10656,9 +10700,9 @@ static inline void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__send
 }
 
 # 100 "/opt/tinyos-main/tos/interfaces/Send.nc"
-inline static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint8_t arg_0x7f514c7c32a0, message_t * msg, error_t error){
+inline static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint8_t arg_0x7fcf06eee2a0, message_t * msg, error_t error){
 #line 100
-  switch (arg_0x7f514c7c32a0) {
+  switch (arg_0x7fcf06eee2a0) {
 #line 100
     case 0U:
 #line 100
@@ -10680,7 +10724,7 @@ inline static void /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__sendDone(uint
 #line 100
     default:
 #line 100
-      /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(arg_0x7f514c7c32a0, msg, error);
+      /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__Send__default__sendDone(arg_0x7fcf06eee2a0, msg, error);
 #line 100
       break;
 #line 100
@@ -11249,9 +11293,9 @@ static inline void SimSchedulerBasicP__TaskBasic__default__runTask(uint8_t id)
 }
 
 # 75 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
-inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7f514d117020){
+inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7fcf0784c020){
 #line 75
-  switch (arg_0x7f514d117020) {
+  switch (arg_0x7fcf0784c020) {
 #line 75
     case TossimPacketModelC__startDoneTask:
 #line 75
@@ -11327,7 +11371,7 @@ inline static void SimSchedulerBasicP__TaskBasic__runTask(uint8_t arg_0x7f514d11
 #line 75
     default:
 #line 75
-      SimSchedulerBasicP__TaskBasic__default__runTask(arg_0x7f514d117020);
+      SimSchedulerBasicP__TaskBasic__default__runTask(arg_0x7fcf0784c020);
 #line 75
       break;
 #line 75
@@ -11387,13 +11431,13 @@ inline static am_addr_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMPacket__dest
 }
 #line 78
 # 80 "/opt/tinyos-main/tos/interfaces/AMSend.nc"
-inline static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(am_id_t arg_0x7f514c7c14d0, am_addr_t addr, message_t * msg, uint8_t len){
+inline static error_t /*AMQueueP.AMQueueImplP*/AMQueueImplP__0__AMSend__send(am_id_t arg_0x7fcf06eed4d0, am_addr_t addr, message_t * msg, uint8_t len){
 #line 80
   unsigned char __nesc_result;
 #line 80
 
 #line 80
-  __nesc_result = TossimActiveMessageC__AMSend__send(arg_0x7f514c7c14d0, addr, msg, len);
+  __nesc_result = TossimActiveMessageC__AMSend__send(arg_0x7fcf06eed4d0, addr, msg, len);
 #line 80
 
 #line 80
@@ -12219,16 +12263,193 @@ static inline void CpmModelC__sim_gain_ack_handle(sim_event_t *evt)
   CpmModelC__free_receive_message((CpmModelC__receive_message_t *)evt->data);
 }
 
-# 130 "Node.nc"
+# 134 "Node.nc"
 static inline void Node__connectTimer__fired(void )
-#line 130
+#line 134
 {
 }
 
-
-static inline void Node__acceptTimer__fired(void )
-#line 134
+# 11 "dataStructures/interfaces/Hashmap.nc"
+inline static void TransportP__sockets__insert(uint32_t key, TransportP__sockets__t input){
+#line 11
+  /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(key, input);
+#line 11
+}
+#line 11
+# 21 "dataStructures/modules/ListC.nc"
+static inline void /*TransportC.SampleList*/ListC__0__List__pushback(/*TransportC.SampleList*/ListC__0__t input)
+#line 21
 {
+
+  if (/*TransportC.SampleList*/ListC__0__size[sim_node()] < /*TransportC.SampleList*/ListC__0__MAX_SIZE[sim_node()]) {
+
+      /*TransportC.SampleList*/ListC__0__container[sim_node()][/*TransportC.SampleList*/ListC__0__size[sim_node()]] = input;
+      /*TransportC.SampleList*/ListC__0__size[sim_node()]++;
+    }
+}
+
+# 17 "dataStructures/interfaces/List.nc"
+inline static void TransportP__attemptedConnections__pushback(TransportP__attemptedConnections__t input){
+#line 17
+  /*TransportC.SampleList*/ListC__0__List__pushback(input);
+#line 17
+}
+#line 17
+# 64 "dataStructures/modules/ListC.nc"
+static inline /*TransportC.SampleList*/ListC__0__t /*TransportC.SampleList*/ListC__0__List__popfront(void )
+#line 64
+{
+  /*TransportC.SampleList*/ListC__0__t returnVal;
+  uint16_t i;
+
+  returnVal = /*TransportC.SampleList*/ListC__0__container[sim_node()][0];
+  if (/*TransportC.SampleList*/ListC__0__size[sim_node()] > 0) {
+
+      for (i = 0; i < /*TransportC.SampleList*/ListC__0__size[sim_node()] - 1; i++) {
+          /*TransportC.SampleList*/ListC__0__container[sim_node()][i] = /*TransportC.SampleList*/ListC__0__container[sim_node()][i + 1];
+        }
+      /*TransportC.SampleList*/ListC__0__size[sim_node()]--;
+    }
+
+  return returnVal;
+}
+
+# 20 "dataStructures/interfaces/List.nc"
+inline static TransportP__attemptedConnections__t TransportP__attemptedConnections__popfront(void ){
+#line 20
+  struct connection __nesc_result;
+#line 20
+
+#line 20
+  __nesc_result = /*TransportC.SampleList*/ListC__0__List__popfront();
+#line 20
+
+#line 20
+  return __nesc_result;
+#line 20
+}
+#line 20
+# 97 "dataStructures/modules/ListC.nc"
+static inline uint16_t /*TransportC.SampleList*/ListC__0__List__size(void )
+#line 97
+{
+  return /*TransportC.SampleList*/ListC__0__size[sim_node()];
+}
+
+# 25 "dataStructures/interfaces/List.nc"
+inline static uint16_t TransportP__attemptedConnections__size(void ){
+#line 25
+  unsigned short __nesc_result;
+#line 25
+
+#line 25
+  __nesc_result = /*TransportC.SampleList*/ListC__0__List__size();
+#line 25
+
+#line 25
+  return __nesc_result;
+#line 25
+}
+#line 25
+# 41 "lib/modules/TransportP.nc"
+static inline socket_t TransportP__Transport__accept(socket_t fd)
+#line 41
+{
+  socket_store_t *currSocket = TransportP__sockets__getPointer(fd);
+  socket_t newFD;
+  socket_store_t newSocket;
+
+  int i;
+  connection curr;
+
+#line 48
+  for (i = TransportP__attemptedConnections__size() - 1; i >= -1; i--) {
+      if (i == -1) {
+#line 49
+        return (uint8_t )0;
+        }
+      curr = TransportP__attemptedConnections__popfront();
+      if (currSocket->state == LISTEN && __nesc_ntoh_uint8(curr.serverPort.nxdata) == __nesc_ntoh_uint8(currSocket->src.port.nxdata)) {
+#line 52
+        break;
+        }
+      else {
+#line 53
+        TransportP__attemptedConnections__pushback(curr);
+        }
+    }
+
+  newFD = TransportP__Transport__socket();
+  newSocket.state = ESTABLISHED;
+  __nesc_hton_uint16(newSocket.src.addr.nxdata, TOS_NODE_ID);
+  __nesc_hton_uint8(newSocket.src.port.nxdata, __nesc_ntoh_uint8(curr.serverPort.nxdata));
+  __nesc_hton_uint8(newSocket.dest.port.nxdata, __nesc_ntoh_uint8(curr.clientPort.nxdata));
+  __nesc_hton_uint16(newSocket.dest.addr.nxdata, curr.clientNode);
+  newSocket.lastRead = curr.seqNum;
+  newSocket.lastRcvd = curr.seqNum;
+  newSocket.nextExpected = curr.seqNum + 1;
+
+  TransportP__sockets__insert(newFD, newSocket);
+
+  sim_log_debug(184U, TRANSPORT_CHANNEL, "Accepted connection on port %d from Node %d, port %d\n", __nesc_ntoh_uint8(newSocket.src.port.nxdata), __nesc_ntoh_uint16(newSocket.dest.addr.nxdata), __nesc_ntoh_uint8(newSocket.dest.port.nxdata));
+
+  return newFD;
+}
+
+# 55 "lib/interfaces/Transport.nc"
+inline static socket_t Node__Transport__accept(socket_t fd){
+#line 55
+  unsigned char __nesc_result;
+#line 55
+
+#line 55
+  __nesc_result = TransportP__Transport__accept(fd);
+#line 55
+
+#line 55
+  return __nesc_result;
+#line 55
+}
+#line 55
+# 138 "Node.nc"
+static inline void Node__acceptTimer__fired(void )
+#line 138
+{
+  int i;
+#line 139
+  int j;
+
+  for (i = 0; i < 5; i++) {
+      if (Node__messageCache[sim_node()][i][0] == 0) {
+#line 142
+        break;
+        }
+#line 143
+      if (Node__messageCache[sim_node()][i][1] == 0) {
+
+          socket_t curr = Node__Transport__accept(Node__messageCache[sim_node()][i][0]);
+
+#line 146
+          if (curr == 0) {
+              Node__acceptTimer__startOneShot(15968);
+              return;
+            }
+          else 
+#line 149
+            {
+              for (j = i; j < 5; j++) {
+                  if (Node__messageCache[sim_node()][j][0] == 0) {
+                      Node__messageCache[sim_node()][j][0] = curr;
+                      Node__messageCache[sim_node()][j][1] = 1;
+                      printf("added newly made socket to my array\n");
+                      break;
+                    }
+                }
+            }
+        }
+    }
+
+  return;
 }
 
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
@@ -13081,9 +13302,9 @@ static inline void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 }
 
 # 83 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
-inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(uint8_t arg_0x7f514c920950){
+inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__fired(uint8_t arg_0x7fcf0704c950){
 #line 83
-  switch (arg_0x7f514c920950) {
+  switch (arg_0x7fcf0704c950) {
 #line 83
     case 0U:
 #line 83
@@ -13135,7 +13356,7 @@ inline static void /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer
 #line 83
     default:
 #line 83
-      /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(arg_0x7f514c920950);
+      /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__default__fired(arg_0x7fcf0704c950);
 #line 83
       break;
 #line 83
@@ -13772,50 +13993,6 @@ inline static bool TransportP__sockets__contains(uint32_t key){
 #line 15
 }
 #line 15
-# 41 "dataStructures/modules/HashmapC.nc"
-static inline void /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(uint32_t k, /*TransportC.SampleMap*/HashmapC__1__t input)
-#line 41
-{
-  uint32_t i = 0;
-#line 42
-  uint32_t j = 0;
-
-  if (k == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]) {
-      sim_log_debug(191U, HASHMAP_CHANNEL, "[HASHMAP] You cannot insert a key of %d.", /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]);
-      return;
-    }
-
-  do {
-
-      j = /*TransportC.SampleMap*/HashmapC__1__hash(k, i);
-
-
-      if (/*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()] || /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == k) {
-
-
-          if (/*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]) {
-              /*TransportC.SampleMap*/HashmapC__1__keys[sim_node()][/*TransportC.SampleMap*/HashmapC__1__numofVals[sim_node()]] = k;
-              /*TransportC.SampleMap*/HashmapC__1__numofVals[sim_node()]++;
-            }
-
-
-          /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].value = input;
-          /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key = k;
-          return;
-        }
-      i++;
-    }
-  while (
-  i < /*TransportC.SampleMap*/HashmapC__1__HASH_MAX_SIZE[sim_node()]);
-}
-
-# 11 "dataStructures/interfaces/Hashmap.nc"
-inline static void TransportP__sockets__insert(uint32_t key, TransportP__sockets__t input){
-#line 11
-  /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(key, input);
-#line 11
-}
-#line 11
 # 67 "/opt/tinyos-main/tos/interfaces/TaskBasic.nc"
 inline static error_t TossimPacketModelC__startDoneTask__postTask(void ){
 #line 67
@@ -16134,9 +16311,9 @@ static /*LinkStateC.myListA*/HashmapC__2__t /*LinkStateC.myListA*/HashmapC__2__H
   return /*LinkStateC.myListA*/HashmapC__2__map[sim_node()][0].value;
 }
 
-# 167 "lib/modules/TransportP.nc"
+# 193 "lib/modules/TransportP.nc"
 static void TransportP__makeTcpHeader(tcpHeader *myTcpHeader, uint8_t sourcePort, uint8_t destPort, uint16_t sequence, uint16_t ack, enum flags flag, uint16_t advertisedWindow)
-#line 167
+#line 193
 {
   __nesc_hton_uint8(myTcpHeader->sourcePort.nxdata, sourcePort);
   __nesc_hton_uint8(myTcpHeader->destPort.nxdata, destPort);
@@ -16146,9 +16323,9 @@ static void TransportP__makeTcpHeader(tcpHeader *myTcpHeader, uint8_t sourcePort
   myTcpHeader->advertisedWindow = advertisedWindow;
 }
 
-#line 159
+#line 185
 static void TransportP__makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t *payload, uint8_t length)
-#line 159
+#line 185
 {
   __nesc_hton_uint16(Package->src.nxdata, src);
   __nesc_hton_uint16(Package->dest.nxdata, dest);
@@ -16788,6 +16965,64 @@ static void NeighborP__Neighbor__startNeighborDiscovery(void )
   NeighborP__SimpleSend__send(neighborDiscoveryPacket, AM_BROADCAST_ADDR);
 }
 
+# 22 "lib/modules/TransportP.nc"
+static socket_t TransportP__Transport__socket(void )
+#line 22
+{
+  if (TransportP__sockets__size() < 10) {
+      return (socket_t )TransportP__Random__rand16() % 255;
+    }
+  else 
+#line 25
+    {
+      return (socket_t )0;
+    }
+}
+
+# 41 "dataStructures/modules/HashmapC.nc"
+static void /*TransportC.SampleMap*/HashmapC__1__Hashmap__insert(uint32_t k, /*TransportC.SampleMap*/HashmapC__1__t input)
+#line 41
+{
+  uint32_t i = 0;
+#line 42
+  uint32_t j = 0;
+
+  if (k == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]) {
+      sim_log_debug(191U, HASHMAP_CHANNEL, "[HASHMAP] You cannot insert a key of %d.", /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]);
+      return;
+    }
+
+  do {
+
+      j = /*TransportC.SampleMap*/HashmapC__1__hash(k, i);
+
+
+      if (/*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()] || /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == k) {
+
+
+          if (/*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key == /*TransportC.SampleMap*/HashmapC__1__EMPTY_KEY[sim_node()]) {
+              /*TransportC.SampleMap*/HashmapC__1__keys[sim_node()][/*TransportC.SampleMap*/HashmapC__1__numofVals[sim_node()]] = k;
+              /*TransportC.SampleMap*/HashmapC__1__numofVals[sim_node()]++;
+            }
+
+
+          /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].value = input;
+          /*TransportC.SampleMap*/HashmapC__1__map[sim_node()][j].key = k;
+          return;
+        }
+      i++;
+    }
+  while (
+  i < /*TransportC.SampleMap*/HashmapC__1__HASH_MAX_SIZE[sim_node()]);
+}
+
+# 73 "/opt/tinyos-main/tos/lib/timer/Timer.nc"
+static void Node__acceptTimer__startOneShot(uint32_t dt){
+#line 73
+  /*HilTimerMilliC.VirtualizeTimerC*/VirtualizeTimerC__0__Timer__startOneShot(1U, dt);
+#line 73
+}
+#line 73
 # 212 "/opt/tinyos-main/tos/chips/atm128/timer/Atm128AlarmAsyncP.nc"
 static void /*AlarmCounterMilliP.Atm128AlarmAsyncC.Atm128AlarmAsyncP*/Atm128AlarmAsyncP__0__Alarm__startAt(uint32_t nt0, uint32_t ndt)
 #line 212
@@ -17069,20 +17304,7 @@ static void LinkStateP__LinkState__printRoutingTable(void )
     }
 }
 
-# 22 "lib/modules/TransportP.nc"
-static socket_t TransportP__Transport__socket(void )
-#line 22
-{
-  if (TransportP__sockets__size() < 10) {
-      return (socket_t )TransportP__Random__rand16() % 255;
-    }
-  else 
-#line 25
-    {
-      return (socket_t )0;
-    }
-}
-
+# 30 "lib/modules/TransportP.nc"
 static error_t TransportP__Transport__bind(socket_t fd, socket_addr_t *addr)
 #line 30
 {

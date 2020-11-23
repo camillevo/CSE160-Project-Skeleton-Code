@@ -85,22 +85,26 @@ implementation{
 	event void CommandHandler.printDistanceVector(){}
 
 	event void CommandHandler.setTestServer(int port){
+        int i;
         socket_t mySocketFD = call Transport.socket();
         socket_addr_t myAddress = {.port = (nx_uint8_t) port, .addr = (nx_uint16_t) TOS_NODE_ID};
 
         call Transport.bind(mySocketFD, &myAddress);
         call Transport.listen(mySocketFD);
 
-        call acceptTimer.startOneShot(6587);
+        for(i = 0; i < 5; i++) {
+            if(messageCache[i][0] == 0) {
+                // For servers, 0 is for listening sockets, 1 for accepted.
+                messageCache[i][0] = (int) mySocketFD;
+                break;
+            }
+        }
+
+        call acceptTimer.startOneShot(15968);
 	}
 
     event void Transport.connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack) {
-        // iterate through array to find the socket that matches
-        // change that socket to established
-        int i;
-        for(i = 0; i < 5; i++) {
-            //socket_store_t curr = call 
-        }
+        // no longer using. Delete at end of project.
     }
 
 	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
@@ -124,7 +128,7 @@ implementation{
 
         call Transport.connect(mySocketFD, &destAddress);
 
-        call connectTimer.startOneShot(5968);
+        call connectTimer.startOneShot(15968);
 	}
 
     event void connectTimer.fired() {
@@ -132,7 +136,30 @@ implementation{
     }
 
     event void acceptTimer.fired() {
-        // do nothing
+        int i, j;
+        //dbg(TRANSPORT_CHANNEL, "starting accept\n");
+        for(i = 0; i < 5; i++) {
+            if(messageCache[i][0] == 0) break;
+            if(messageCache[i][1] == 0) {
+                //printf("about to call accept\n");
+                socket_t curr = call Transport.accept(messageCache[i][0]);
+                if(curr == 0) {
+                    call acceptTimer.startOneShot(15968);
+                    return;
+                } else {
+                    for(j = i; j < 5; j++) {
+                        if(messageCache[j][0] == 0) {
+                            messageCache[j][0] = curr;
+                            messageCache[j][1] = 1;
+                            printf("added newly made socket to my array\n");
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+        return;
     }
 
 	event void CommandHandler.setAppServer(){}

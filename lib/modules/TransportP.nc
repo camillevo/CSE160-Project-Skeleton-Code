@@ -37,30 +37,53 @@ implementation{
         }
         return FAIL;
     }
-    // CAMILLE COME BACK TO THIS
+
     command socket_t Transport.accept(socket_t fd){
         socket_store_t *currSocket = call sockets.getPointer(fd);
-        if(currSocket->state == SYN_RCVD) {
-            // Put currSocket in with a new fd, and put a clear socket in at the old fd
-            socket_t newFD = call Transport.socket();
-            call sockets.remove(fd);
-            currSocket->state = ESTABLISHED;
-            call sockets.insert((uint32_t) newFD, *currSocket);
-            //socket_store_t tester = call sockets.get(newFD);
-            if((call sockets.get(newFD)).state == ESTABLISHED) {
-                dbg(TRANSPORT_CHANNEL, "it is established\n");
-            }
+        socket_t newFD;
+        socket_store_t newSocket;
 
-            //socket_store_t newSocket;
-            //memcpy(&newSocket, currSocket)
-            //call Transport.socket();
+        int i;
+        connection curr;
+        for(i = call attemptedConnections.size() - 1; i >= -1; i--) {
+            if(i == -1) return (uint8_t) 0;
+            
+            curr = call attemptedConnections.popfront();
+            if(currSocket->state == LISTEN && curr.serverPort == currSocket->src.port) break;
+            else call attemptedConnections.pushback(curr);
         }
 
+        // Make a new connection
+        newFD = call Transport.socket();
+        newSocket.state = ESTABLISHED;
+        newSocket.src.addr = TOS_NODE_ID;
+        newSocket.src.port = curr.serverPort;
+        newSocket.dest.port = curr.clientPort;
+        newSocket.dest.addr = curr.clientNode;
+        newSocket.lastRead = curr.seqNum;
+        newSocket.lastRcvd = curr.seqNum;
+        newSocket.nextExpected = curr.seqNum + 1;
 
-        return fd;
+        call sockets.insert(newFD, newSocket);
+
+        dbg(TRANSPORT_CHANNEL, "Accepted connection on port %d from Node %d, port %d\n", 
+            newSocket.src.port, newSocket.dest.addr, newSocket.dest.port);
+        return newFD;
     }
 
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen) {
+        socket_store_t *mySocket = call sockets.getPointer(fd);
+        // check space in buffer
+        // if it has space, write the remaining amount to the buffer
+        // check effective window size = advertised window - (lastSent - lastAck)
+        // while effective window > 0, 
+        //     make tcpHeader and pack and send 1 pack of data
+        //          need to find a way to wait for ack
+        //     seqNum is = lastAck
+        //     increase lastSent
+        //     decrease effectiveWindow
+        // return the amount of data able to write
+
         return bufflen;
     }
 
@@ -79,7 +102,7 @@ implementation{
 
                 makeTcpHeader(
                     &sendTcpHeader, myHeader->destPort, myConnection.clientPort, call Random.rand16() % 500, 
-                    myConnection.seqNum + 1, SYNACK, 0
+                    myConnection.seqNum + 1, SYNACK, 1
                 );
                 makePack(&sendPackage, TOS_NODE_ID, myConnection.clientNode, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
                 call Ip.ping(sendPackage);
@@ -92,10 +115,32 @@ implementation{
                 dbg(TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
                 // check if ack is the same as the sequence I sent
+                if(myHeader->ack != mySocket->lastSent + 1) {
+                    return FAIL;
+                }
+                mySocket->nextExpected = myHeader->sequence + 1;
+                mySocket->lastAck = myHeader->ack;
                 mySocket->state = ESTABLISHED;
+                mySocket->effectiveWindow = myHeader->advertisedWindow;
                 dbg(TRANSPORT_CHANNEL, "Connection is established! Can start sending data\n");
+
+                // CAMILLE FIX SEQUENCE NUMBER LATER    
+                makeTcpHeader(&sendTcpHeader, myHeader->destPort, myHeader->sourcePort, 3, myHeader->sequence + 1, ACK, 0);
+                makePack(&sendPackage, TOS_NODE_ID, package->src, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
+                call Ip.ping(sendPackage);
+                return SUCCESS;
             }
             break;
+            case ACK: {
+                // increase lastAck
+                // see what the advertised window is and adjust effective window accordingly
+                dbg(TRANSPORT_CHANNEL, "ACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
+            }
+            // default
+            // copy data to socket buffer
+            // increase last rcvd and nextExpected
+            // make tcpHeader with advertised window
+            // send ACK back
         }
         return FAIL;
     }
@@ -114,10 +159,7 @@ implementation{
         int i;
         for(i = call sockets.size() - 1; i >= 0; i--) {
             socket_store_t curr = call sockets.get(keys[i]);
-            //printf("socket: src port = %d, dest = %d, dest port = %d\n", curr.src.port, curr.dest.addr, curr.dest.port);
-            //printf("tcpHeader: src port = %d, dest = %d, dest port = %d\n", clientPort, server, serverPort);
             if(curr.src.port == clientPort && curr.dest.addr == server && curr.dest.port == serverPort) {
-                //dbg(TRANSPORT_CHANNEL, "Found socket %d\n", keys[i]);
                 return keys[i];
             }
         }
@@ -126,13 +168,20 @@ implementation{
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen) {
+        // Called from acceptTimer() for sockets marked as established
+        // copy length of what's in socket buffer to *buff
+        // increase lastRead
+        // return length of what was in buffer
         return bufflen;
     }
 
     command error_t Transport.connect(socket_t fd, socket_addr_t * address) {
         socket_store_t *currSocket = call sockets.getPointer(fd);
         currSocket->dest = *address;
-        makeTcpHeader(&sendTcpHeader, currSocket->src.port, address->port, call Random.rand16() % 500, 0, SYN, 0);
+        currSocket->lastWritten = call Random.rand16() % 500;
+        currSocket->lastSent = currSocket->lastWritten;
+        currSocket->lastAck = currSocket->lastWritten;
+        makeTcpHeader(&sendTcpHeader, currSocket->src.port, address->port, currSocket->lastSent, 0, SYN, 0);
 
         makePack(&sendPackage, TOS_NODE_ID, (uint16_t) address->addr, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
         call Ip.ping(sendPackage);
