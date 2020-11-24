@@ -30,8 +30,8 @@ def main():
     # After sending a ping, simulate a little to prevent collision.
 
     s.runTime(200);
-    s.routeDMP(4);
-    s.runTime(60);
+ #   s.routeDMP(4);
+ #   s.runTime(60);
     s.testServer(well_known_mote, well_known_port);
     s.runTime(60);
 

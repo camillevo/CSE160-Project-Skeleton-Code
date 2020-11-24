@@ -96,7 +96,10 @@ interface Transport{
     * @return uint16_t - return the amount of data you are able to read
     *    from the pass buffer. This may be shorter then bufflen
     */
-   command uint16_t read(socket_t fd, uint8_t *buff, uint16_t bufflen);
+   //command uint16_t read(socket_t fd, uint8_t *buff, uint16_t bufflen);
+
+   //CAMILLE - I changed the parameters on this
+   command uint16_t read(socket_t fd);
 
    /**
     * Attempts a connection to an address.
@@ -150,8 +153,7 @@ interface Transport{
     */
    event void connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack);
 
-
-   command bool establishSocket(int fd, uint8_t clientPort, uint16_t server, uint8_t serverPort);
+   command void sendBuffer(socket_store_t *mySocket);
 
    command bool findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
 }

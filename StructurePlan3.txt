@@ -114,3 +114,19 @@ receive (pack) {
         put data sent in buffered_data part of socket
         send ACK back
 }
+
+
+
+ 3rd goal:
+ - Figure out what's going on with the last ACK in the window
+ - leaving ACK for now. It's not impacting anything else.
+ - must consistently call write()
+
+ - remove any uneeded print statements
+ - create application reading the bytes
+ - then, check if sliding window works
+
+ - Fix 16it integer function
+ - then check sliding window
+ - then find out what's up w the last sequence number
+ - then consistent write()

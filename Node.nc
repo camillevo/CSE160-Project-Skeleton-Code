@@ -32,7 +32,13 @@ implementation{
 	pack sendPackage;
 	int seqNum = 0;
 	int * sequenceNum = &seqNum;
-    int messageCache[5][2] = {{0}};
+    // 0: file descriptor
+    // 1: for server: listening or established
+    //    for client: # of bytes already sent
+    // 2: for client: total bytes
+
+    int messageCache[5][3] = {{0}};
+    uint8_t dataBuffers[5][128] = {{0}};
 
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
@@ -108,7 +114,7 @@ implementation{
     }
 
 	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
-        int i = 0;
+        int i, j;
         socket_t mySocketFD = call Transport.socket();
         socket_addr_t myAddress = {.port = (nx_uint8_t) sourcePort};
         socket_addr_t destAddress = {.port = (nx_uint8_t) destPort};
@@ -121,18 +127,37 @@ implementation{
         for(i = 0; i < 5; i++) {
             if(messageCache[i][0] == 0) {
                 messageCache[i][0] = (int) mySocketFD;
-                messageCache[i][1] = transfer;
+                messageCache[i][1] = 0;
+                messageCache[i][2] = transfer;
                 break;
             }
         }
 
         call Transport.connect(mySocketFD, &destAddress);
+        // copy the transfer data to buffer
+        // for(j = 0; j < transfer; j++) {
+        //     dataBuffers[i][j] = j;
+        // }
 
         call connectTimer.startOneShot(15968);
 	}
 
     event void connectTimer.fired() {
-        // do nothing for now
+        // loop through cache
+        // challenge is writing # of transfer bytes to the buffer
+        int i, j, currByte;
+
+        for(i = 0; i < 5; i++) {
+            if(messageCache[i][0] == 0) break;
+            currByte = messageCache[i][1];
+            // Write remaining data to buffer
+            for(j = 0; j < 128; j++) {
+                if(currByte == messageCache[i][2]) break;
+                dataBuffers[i][j] = currByte;
+                currByte++;
+            }
+            messageCache[i][1] = messageCache[i][1] + call Transport.write(messageCache[i][0], &dataBuffers[i], currByte + 1);
+        }
     }
 
     event void acceptTimer.fired() {
@@ -151,7 +176,7 @@ implementation{
                         if(messageCache[j][0] == 0) {
                             messageCache[j][0] = curr;
                             messageCache[j][1] = 1;
-                            printf("added newly made socket to my array\n");
+                            //printf("added newly made socket to my array\n");
                             break;
                         }
                     }
