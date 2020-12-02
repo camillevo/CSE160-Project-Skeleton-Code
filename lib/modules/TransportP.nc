@@ -66,7 +66,7 @@ implementation{
         newSocket.lastRcvd = curr.seqNum;
         newSocket.lastReadIndex = 0;
         newSocket.nextExpected = curr.seqNum + 1;
-        newSocket.effectiveWindow = 2 * TCP_MAX_DATA;
+        newSocket.effectiveWindow = TCP_MAX_DATA;
 
         call sockets.insert(newFD, newSocket);
 
@@ -78,7 +78,17 @@ implementation{
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen) {
         socket_store_t *mySocket = call sockets.getPointer(fd);
         int currIndex = mySocket->lastWritten - mySocket->lastAck + mySocket->lastAckIndex;
-        uint16_t min = (bufflen < (SOCKET_BUFFER_SIZE - currIndex) ? bufflen : SOCKET_BUFFER_SIZE - currIndex);
+        uint16_t min;
+        // If there's not enough room in the socket for bufflen
+        if(mySocket->lastAckIndex > 0 && SOCKET_BUFFER_SIZE - currIndex < bufflen) {
+            dbg(TRANSPORT_CHANNEL, "Removed %d ACKed bytes\n", currIndex);
+            // If more room is needed & available, remove already ACKed bytes
+            currIndex = mySocket->lastWritten - mySocket->lastAck;
+            memcpy(&(mySocket->sendBuff[0]), &(mySocket->sendBuff[mySocket->lastAckIndex + 1]), currIndex);
+            mySocket->lastAckIndex = 0;
+        }
+        min = (bufflen < (SOCKET_BUFFER_SIZE - currIndex) ? bufflen : SOCKET_BUFFER_SIZE - currIndex);
+
         dbg(TRANSPORT_CHANNEL, "Wrote %d bytes at buff[%d]\n", min, currIndex);
                        
         memcpy(&(mySocket->sendBuff[currIndex]), buff, SOCKET_BUFFER_SIZE - currIndex);
@@ -91,9 +101,13 @@ implementation{
 
     command void Transport.sendBuffer(socket_store_t *mySocket) {
         //printf("lastWritten: %d, lastSent: %d\n", mySocket->lastWritten, mySocket->lastSent);
+        if(mySocket->state != ESTABLISHED) {
+            dbg(TRANSPORT_CHANNEL, "Socket is not yet established.\n");
+        }
         while(mySocket->effectiveWindow > 0) {
-            // Find min of effectiveWindow, lastWritten, and TCP_SIZE
-            uint8_t bytesToSend = (uint8_t)(mySocket->lastWritten - mySocket->lastSent) > TCP_MAX_DATA ? TCP_MAX_DATA : (uint8_t)(mySocket->lastWritten - mySocket->lastSent);
+            int i;
+            // Find min of effectiveWindow, lastWritten, and TCP_MAX_DATA
+            uint8_t bytesToSend = (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1) > TCP_MAX_DATA ? TCP_MAX_DATA : (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1);
             if(mySocket->effectiveWindow < bytesToSend) bytesToSend = mySocket->effectiveWindow;
             printf("sendBuffer() effectiveWindow = %d\n", mySocket->effectiveWindow);
             if(bytesToSend == 0) {
@@ -101,17 +115,18 @@ implementation{
                 return;
             }
             // Setting effectiveWindow to 0 because Server doesn't need it
+            // Repurposing ACK to store length of payload
             makeTcpHeader(
                 &sendTcpHeader, mySocket->src.port, mySocket->dest.port, mySocket->lastSent + 1, 
-                0, NONE, 0
+                bytesToSend, NONE, 0
             );
-
+            //(&sendTcpHeader)->length = bytesToSend;
             memcpy((&sendTcpHeader)->payload, &(mySocket->sendBuff[mySocket->lastSent + 1 - mySocket->lastAck + mySocket->lastAckIndex]), bytesToSend);
-            //dbg(TRANSPORT_CHANNEL, "Copying buff[%d]\n", mySocket->lastSent + 1 - mySocket->lastAck + mySocket->lastAckIndex);
 
             makePack(&sendPackage, TOS_NODE_ID, mySocket->dest.addr, 20, PROTOCOL_TCP, 
                 sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, TCP_HEADER_LENGTH + bytesToSend
             );
+            //printf("sizeof tcp header = %d\n", sizeof(sendTcpHeader));
             dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend);
             call Ip.ping(sendPackage);
             mySocket->lastSent += bytesToSend;
@@ -134,7 +149,7 @@ implementation{
 
                 makeTcpHeader(
                     &sendTcpHeader, myHeader->destPort, myConnection.clientPort, call Random.rand16() % 500, 
-                    myConnection.seqNum + 1, SYNACK, 2 * TCP_MAX_DATA
+                    myConnection.seqNum + 1, SYNACK, TCP_MAX_DATA
                 );
                 makePack(&sendPackage, TOS_NODE_ID, myConnection.clientNode, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
                 call Ip.ping(sendPackage);
@@ -183,19 +198,22 @@ implementation{
                 socket_store_t *mySocket = call sockets.getPointer(fd);
                 uint8_t TEMP;
 
-                memcpy(&(mySocket->rcvdBuff[myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex]), myHeader->payload, TCP_MAX_DATA);
-                dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex);
                 printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
 
-                mySocket->lastRcvd = myHeader->sequence + sizeof(myHeader->payload) - 1;
-                if(myHeader->sequence == mySocket->nextExpected) {
-                    mySocket->nextExpected += TCP_MAX_DATA;
+                mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
+                if(myHeader->sequence <= mySocket->nextExpected) {
+                    // ack field is repurposed as size on client side
+                    mySocket->nextExpected += myHeader->ack;
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);
+                    return FAIL;
                 }
+
+                memcpy(&(mySocket->rcvdBuff[(uint8_t)(myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex)]), myHeader->payload, TCP_MAX_DATA);
+                dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
+
                 TEMP = call Transport.read(fd);
-                mySocket->effectiveWindow = mySocket->effectiveWindow - sizeof(myHeader->payload) + TEMP;
-                dbg(TRANSPORT_CHANNEL, "rcvd data = %d, read data = %d\n", sizeof(myHeader->payload), TEMP);
+                mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
                 dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
                 
                 makeTcpHeader(&sendTcpHeader, myHeader->destPort, myHeader->sourcePort, 0, mySocket->nextExpected, ACK, mySocket->effectiveWindow);
@@ -215,31 +233,37 @@ implementation{
                 return keys[i];
             }
         }
-        //dbg(TRANSPORT_CHANNEL, "didn't find socket :/\n");
         return (uint8_t) 0;
     }
 
     command uint16_t Transport.read(socket_t fd) {
-        // Called from acceptTimer() for sockets marked as established
-        // copy length of what's in socket buffer to *buff
-        // increase lastRead
-        // return length of what was in buffer
-
         // Proj 3: print all the bytes I can, return amount printed
         socket_store_t *mySocket = call sockets.getPointer(fd);
         int i;
-        uint8_t endIndex = mySocket->lastReadIndex + (mySocket->lastRcvd - mySocket->lastRead) - 1;
+        uint8_t endIndex;
         uint8_t netBytes = mySocket->lastRcvd - mySocket->lastRead;
+        netBytes = netBytes - (netBytes % 2); // only read even number
+        endIndex = netBytes + mySocket->lastReadIndex - 1;
+
         dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
         dbg(TRANSPORT_CHANNEL, "Received data ");
         for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
-            //uint16_t int16 = myHeader->payload[i] << 8 + myHeader->payload[i + 1];
             // CAMILLE FIX LATER
             printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
         }
+        // for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
+        //     printf("%d, ", mySocket->rcvdBuff[i]);
+        // }
         printf("\n");
+
         mySocket->lastRead += endIndex - mySocket->lastReadIndex + 1;
         mySocket->lastReadIndex = endIndex + 1;
+
+        if(endIndex > SOCKET_BUFFER_SIZE / 2) {
+            memcpy(&(mySocket->rcvdBuff[0]), &(mySocket->rcvdBuff[mySocket->lastReadIndex + 1]), netBytes);
+            mySocket->lastReadIndex = 0;
+            dbg(TRANSPORT_CHANNEL, "Removed %d bytes from rcvdBuff\n", netBytes);
+        }
 
         return netBytes;
     }

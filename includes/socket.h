@@ -73,6 +73,7 @@ typedef struct tcpHeader{
     nx_socket_port_t destPort;
     uint8_t sequence;
     uint8_t ack;
+    //uint8_t length;
     enum flags flag;
     uint8_t advertisedWindow;
     uint8_t payload[TCP_MAX_DATA];

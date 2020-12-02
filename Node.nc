@@ -145,18 +145,30 @@ implementation{
     event void connectTimer.fired() {
         // loop through cache
         // challenge is writing # of transfer bytes to the buffer
-        int i, j, currByte;
+        int i, j, currByte, oldByte;
+        bool dataLeft = FALSE;
 
         for(i = 0; i < 5; i++) {
-            if(messageCache[i][0] == 0) break;
+            if(messageCache[i][0] == 0) continue;
+            if(messageCache[i][1] == messageCache[i][2]) {
+                dbg(TRANSPORT_CHANNEL, "Wrote all my data!\n");
+                dataLeft = dataLeft || FALSE;
+                continue;
+            }
+            dataLeft = TRUE;
             currByte = messageCache[i][1];
+            oldByte = messageCache[i][1];
             // Write remaining data to buffer
             for(j = 0; j < 128; j++) {
                 if(currByte == messageCache[i][2]) break;
                 dataBuffers[i][j] = currByte;
                 currByte++;
             }
-            messageCache[i][1] = messageCache[i][1] + call Transport.write(messageCache[i][0], &dataBuffers[i], currByte + 1);
+            messageCache[i][1] = messageCache[i][1] + call Transport.write(messageCache[i][0], &dataBuffers[i], currByte - oldByte);
+            dbg(TRANSPORT_CHANNEL, "XXXXXXX Wrote from byte %d to byte %d\n", oldByte, messageCache[i][1]);
+        }
+        if(dataLeft) {
+            call connectTimer.startOneShot(9900);
         }
     }
 

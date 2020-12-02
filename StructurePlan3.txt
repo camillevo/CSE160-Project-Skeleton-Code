@@ -116,17 +116,13 @@ receive (pack) {
 }
 
 
+CAMILLE - debuggs
+1. Change size of TCP Header & pack to reflect # of bytes sent
+2. When effectiveWindow != 11, we're sending 1 too many bytes
+    ex. Received data 121, 122, 123, 124, 125, 126, 127, 96, 118, 119, 120
+    Sent bytes 89 to 96
+    Which means 8 bytes are expected, only sent 7
 
- 3rd goal:
- - Figure out what's going on with the last ACK in the window
- - leaving ACK for now. It's not impacting anything else.
- - must consistently call write()
 
- - remove any uneeded print statements
- - create application reading the bytes
- - then, check if sliding window works
-
- - Fix 16it integer function
- - then check sliding window
- - then find out what's up w the last sequence number
- - then consistent write()
+1. Forgot to make a resend timer!!!!
+2. Need to close connection 

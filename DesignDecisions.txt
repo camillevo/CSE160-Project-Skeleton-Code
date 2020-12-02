@@ -1,0 +1,11 @@
+I wrote out pseudocode for different methods and my personal implementation plan in 
+StructurePlan3.txt. For this project, the difficult part was because I could not create
+the basic socket methods in the traditional blocking way, and so had to come up with 
+the logic for them to work non-blocking. 
+For this, connect() and accept() are called with timers. On the server side, when a 
+SYN is recieved, the conenction is saved to a cache, which accept() will then go 
+through and create a new socket based on the information when the timer is fired.
+In Node, any opened sockets are added to a cache. On the client side, this cache 
+also includes the max bytes to send and the # bytes already written.
+On the server side, this cache will indicate if the socket is opened or closed.
+In the future I will convert this cache to an array of structs for more clarity.
