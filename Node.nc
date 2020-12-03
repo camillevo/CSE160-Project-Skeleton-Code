@@ -106,7 +106,7 @@ implementation{
             }
         }
 
-        call acceptTimer.startOneShot(15968);
+        call acceptTimer.startOneShot(13968);
 	}
 
     event void Transport.connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack) {
@@ -139,7 +139,7 @@ implementation{
         //     dataBuffers[i][j] = j;
         // }
 
-        call connectTimer.startOneShot(15968);
+        call connectTimer.startOneShot(20968);
 	}
 
     event void connectTimer.fired() {
@@ -168,7 +168,7 @@ implementation{
             dbg(TRANSPORT_CHANNEL, "XXXXXXX Wrote from byte %d to byte %d\n", oldByte, messageCache[i][1]);
         }
         if(dataLeft) {
-            call connectTimer.startOneShot(9900);
+            call connectTimer.startOneShot(9990);
         }
     }
 
@@ -192,11 +192,22 @@ implementation{
                             break;
                         }
                     }
+                    call acceptTimer.startOneShot(15968);
                 }
             }
 
         }
         return;
+    }
+
+    event void CommandHandler.setClientClose(int dest, int srcPort, int destPort){
+        //dbg(TRANSPORT_CHANNEL, "closing socket src: %d %d, dest: %d %d\n", TOS_NODE_ID, srcPort, dest, destPort);
+        socket_t mySocket = call Transport.findSocket(srcPort, dest, destPort);
+        if(call Transport.close(mySocket) == SUCCESS) {
+            dbg(TRANSPORT_CHANNEL, "Connection from %d:%d to %d:%d successfully closed\n", TOS_NODE_ID, srcPort, dest, destPort);
+        } else {
+            dbg(TRANSPORT_CHANNEL, "ERROR - Connection could not be closed\n");
+        }
     }
 
 	event void CommandHandler.setAppServer(){}

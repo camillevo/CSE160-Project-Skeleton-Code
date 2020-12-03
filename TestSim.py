@@ -15,6 +15,7 @@ class TestSim:
     CMD_ROUTE_DUMP=3
     CMD_TEST_CLIENT=4
     CMD_TEST_SERVER=5
+    CMD_CLIENT_CLOSE=6
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -138,7 +139,11 @@ class TestSim:
         myList = [destination, sourcePort, destPort, transfer];
         myString = "{0}{1}{2}{3}".format(chr(destination), chr(sourcePort), chr(destPort), chr(transfer));
         self.sendCMD(self.CMD_TEST_CLIENT, address, myString);
-        
+
+    def clientClose(self, address, sourcePort, destination, destPort):
+        myString = "{0}{1}{2}".format(chr(destination), chr(sourcePort), chr(destPort));
+        self.sendCMD(self.CMD_CLIENT_CLOSE, address, myString);
+
     def printer(msg1, msg2):
         print (msg2);
 
@@ -149,7 +154,7 @@ def main():
     s = TestSim();
     s.runTime(10);
     s.loadTopo("demo.topo");
-    s.loadNoise("no_noise.txt");
+    s.loadNoise("some_noise.txt");
     s.bootAll();
     s.addChannel(s.COMMAND_CHANNEL);
    # s.addChannel(s.FLOODING_CHANNEL);
@@ -159,13 +164,16 @@ def main():
 
 
     s.runTime(50);
-    #s.moteOff(8);
-    s.runTime(400);
-    # s.neighborDMP(4);
-    # s.runTime(10);
-    # s.cmdRouteDMP(4);
-    s.routeDMP(2);
-    s.runTime(200);
+    s.ping(4, 1, "what's not clicking");
+    s.runTime(300);
+
+    # #s.moteOff(8);
+    # s.runTime(400);
+    # # s.neighborDMP(4);
+    # # s.runTime(10);
+    # # s.cmdRouteDMP(4);
+    # s.routeDMP(2);
+    # s.runTime(200);
 
 
 if __name__ == '__main__':

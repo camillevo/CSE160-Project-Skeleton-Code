@@ -12,6 +12,15 @@ implementation{
 
   components new ListC(connection, 10) as SampleList;
   TransportP.attemptedConnections -> SampleList;
+ 
+  components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”
+  TransportP.resendTimer -> myTimerA;
+
+  components new TimerMilliC() as myTimerB; //create a new timer with alias “myTimerC”
+  TransportP.synTimer -> myTimerB;
+
+  components new TimerMilliC() as myTimerC; //create a new timer with alias “myTimerC”
+  TransportP.synackTimer -> myTimerC;
 
   components RandomC;
   TransportP.Random -> RandomC;

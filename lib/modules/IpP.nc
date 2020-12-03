@@ -24,10 +24,11 @@ implementation{
     }
 
     command void Ip.ping(pack sendPacket){
-        if(routingTableReady == FALSE) {
+        if(routingTableReady == FALSE || call LinkState.getNextHop(sendPacket.dest == 0)) {
             call cache.pushback(sendPacket);
+            return;
         }
-        //printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
+        printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
         call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 

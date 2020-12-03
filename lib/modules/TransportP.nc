@@ -6,6 +6,9 @@ module TransportP{
 
   uses interface Hashmap<socket_store_t> as sockets;
   uses interface List<connection> as attemptedConnections;
+  uses interface Timer<TMilli> as resendTimer;
+  uses interface Timer<TMilli> as synTimer;
+  uses interface Timer<TMilli> as synackTimer;
   uses interface Random;
   uses interface Ip;
 }
@@ -45,10 +48,12 @@ implementation{
 
         int i;
         connection curr;
-        for(i = call attemptedConnections.size() - 1; i >= -1; i--) {
-            if(i == -1) return (uint8_t) 0;
+        currSocket->state = LISTEN;
+        for(i = call attemptedConnections.size(); i >= 0; i--) {
+            if(i == 0) return (uint8_t) 0;
             
             curr = call attemptedConnections.popfront();
+            // Can only accept 1 conenction per accept(), so break;
             if(currSocket->state == LISTEN && curr.serverPort == currSocket->src.port) break;
             else call attemptedConnections.pushback(curr);
         }
@@ -66,7 +71,7 @@ implementation{
         newSocket.lastRcvd = curr.seqNum;
         newSocket.lastReadIndex = 0;
         newSocket.nextExpected = curr.seqNum + 1;
-        newSocket.effectiveWindow = TCP_MAX_DATA;
+        newSocket.effectiveWindow = TCP_MAX_DATA * 2;
 
         call sockets.insert(newFD, newSocket);
 
@@ -77,13 +82,16 @@ implementation{
 
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen) {
         socket_store_t *mySocket = call sockets.getPointer(fd);
-        int currIndex = mySocket->lastWritten - mySocket->lastAck + mySocket->lastAckIndex;
+        uint8_t currIndex = (uint8_t) (mySocket->lastWritten - mySocket->lastAck + mySocket->lastAckIndex);
         uint16_t min;
+        if(mySocket->state != ESTABLISHED) {
+            return 0;
+        }
         // If there's not enough room in the socket for bufflen
         if(mySocket->lastAckIndex > 0 && SOCKET_BUFFER_SIZE - currIndex < bufflen) {
             dbg(TRANSPORT_CHANNEL, "Removed %d ACKed bytes\n", currIndex);
             // If more room is needed & available, remove already ACKed bytes
-            currIndex = mySocket->lastWritten - mySocket->lastAck;
+            currIndex = (uint8_t) (mySocket->lastWritten - mySocket->lastAck);
             memcpy(&(mySocket->sendBuff[0]), &(mySocket->sendBuff[mySocket->lastAckIndex + 1]), currIndex);
             mySocket->lastAckIndex = 0;
         }
@@ -102,14 +110,15 @@ implementation{
     command void Transport.sendBuffer(socket_store_t *mySocket) {
         //printf("lastWritten: %d, lastSent: %d\n", mySocket->lastWritten, mySocket->lastSent);
         if(mySocket->state != ESTABLISHED) {
-            dbg(TRANSPORT_CHANNEL, "Socket is not yet established.\n");
+            dbg(TRANSPORT_CHANNEL, "Socket on port %d is not yet established.\n", mySocket->src.addr);
+            return;
         }
         while(mySocket->effectiveWindow > 0) {
             int i;
             // Find min of effectiveWindow, lastWritten, and TCP_MAX_DATA
             uint8_t bytesToSend = (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1) > TCP_MAX_DATA ? TCP_MAX_DATA : (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1);
             if(mySocket->effectiveWindow < bytesToSend) bytesToSend = mySocket->effectiveWindow;
-            printf("sendBuffer() effectiveWindow = %d\n", mySocket->effectiveWindow);
+            //printf("sendBuffer() effectiveWindow = %d\n", mySocket->effectiveWindow);
             if(bytesToSend == 0) {
                 dbg(TRANSPORT_CHANNEL, "Need more data!\n");
                 return;
@@ -127,15 +136,39 @@ implementation{
                 sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, TCP_HEADER_LENGTH + bytesToSend
             );
             //printf("sizeof tcp header = %d\n", sizeof(sendTcpHeader));
-            dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend);
+            dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d on port %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend, mySocket->src.port);
             call Ip.ping(sendPackage);
             mySocket->lastSent += bytesToSend;
             mySocket->effectiveWindow -= bytesToSend;
+        }
+        // If there's more to write, then call resend timer.
+        // +-1 is wiggle room for my own potential errors in indexing
+        if(mySocket->lastSent < mySocket->lastWritten - 1 || mySocket->lastSent > mySocket->lastWritten + 1) {
+            call resendTimer.startOneShot(1500);
+        } else {
+            dbg(TRANSPORT_CHANNEL, "lastWritten = %d, lastSent = %d\n", mySocket->lastWritten, mySocket->lastSent);
+        }
+    }
+
+    event void resendTimer.fired() {
+        // Iterate thru sockets
+        uint32_t *keys = call sockets.getKeys();
+        int i;
+        //printf("Sanity check: there are %d sockets for Node %d\n", call sockets.size(), TOS_NODE_ID);
+        for(i = call sockets.size() - 1; i >= 0; i--) {
+            socket_store_t *mySocket = call sockets.getPointer(keys[i]);
+            // Start send from whatever was last ACKed
+            if(mySocket->state == ESTABLISHED) {
+                mySocket->lastSent = mySocket->lastAck - 1;
+                call Transport.sendBuffer(mySocket);
+            }
         }
     }
 
     command error_t Transport.receive(pack* package) {
         tcpHeader *myHeader = package->payload;
+        socket_t fd = call Transport.findSocket(myHeader->destPort, package->src, myHeader->sourcePort);
+        socket_store_t *mySocket = call sockets.getPointer(fd);
 
         switch(myHeader->flag) {
             case SYN: {
@@ -147,24 +180,28 @@ implementation{
                 call attemptedConnections.pushfront(myConnection);
                 dbg(TRANSPORT_CHANNEL, "SYN received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
+                mySocket->state = SYN_RCVD;
+
                 makeTcpHeader(
                     &sendTcpHeader, myHeader->destPort, myConnection.clientPort, call Random.rand16() % 500, 
-                    myConnection.seqNum + 1, SYNACK, TCP_MAX_DATA
+                    myConnection.seqNum + 1, SYNACK, TCP_MAX_DATA * 2
                 );
                 makePack(&sendPackage, TOS_NODE_ID, myConnection.clientNode, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
                 call Ip.ping(sendPackage);
+                
+                call synackTimer.startOneShot(1200);
                 return SUCCESS;
             }
             break;
             case SYNACK: {
-                socket_t fd = call Transport.findSocket(myHeader->destPort, package->src, myHeader->sourcePort);
-                socket_store_t *mySocket = call sockets.getPointer(fd);
                 dbg(TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
                 // check if ack is the same as the sequence I sent
                 if(myHeader->ack != mySocket->lastSent + 1) {
                     return FAIL;
                 }
+                if(call synTimer.isRunning()) call synTimer.stop();
+
                 mySocket->nextExpected = myHeader->sequence + 1;
                 mySocket->lastAck = myHeader->ack;
                 mySocket->lastWritten = mySocket->lastAck;
@@ -178,28 +215,30 @@ implementation{
                 return SUCCESS;
             }
             break;
-            case ACK: {
-                socket_t fd = call Transport.findSocket(myHeader->destPort, package->src, myHeader->sourcePort);
-                socket_store_t *mySocket = call sockets.getPointer(fd);
+            case FIN: {
+                // Send ACK
+                makeTcpHeader(&sendTcpHeader, myHeader->destPort, myHeader->sourcePort, 0, mySocket->nextExpected, ACK, mySocket->effectiveWindow);
+                makePack(&sendPackage, TOS_NODE_ID, package->src, 20, PROTOCOL_TCP, myHeader->sequence + 18, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
+                call Ip.ping(sendPackage);
 
-                if(fd == 0) return FAIL;
+                if(mySocket->state != CLOSED) {
+                    call Transport.close(fd);
+                }
+            }
+            case ACK: {
+                if(fd == 0 || mySocket->state != ESTABLISHED) return FAIL;
+                if(call synackTimer.isRunning()) call synackTimer.stop();
 
                 mySocket->lastAckIndex += myHeader->ack - mySocket->lastAck;
                 mySocket->lastAck = myHeader->ack;
                 mySocket->effectiveWindow = myHeader->advertisedWindow - (mySocket->lastSent - mySocket->lastAck + 1);
 
                 dbg(TRANSPORT_CHANNEL, "ACK: %d received from Node %d, port %d\n", myHeader->ack, package->src, myHeader->sourcePort);
-
-                call Transport.sendBuffer(mySocket);
             }
             break;
             default: {
-                socket_t fd = call Transport.findSocket(myHeader->destPort, package->src, myHeader->sourcePort);
-                socket_store_t *mySocket = call sockets.getPointer(fd);
                 uint8_t TEMP;
-
-                printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
-
+                //printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
                 mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
                 if(myHeader->sequence <= mySocket->nextExpected) {
                     // ack field is repurposed as size on client side
@@ -247,14 +286,13 @@ implementation{
 
         dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
         dbg(TRANSPORT_CHANNEL, "Received data ");
-        for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
-            // CAMILLE FIX LATER
-            printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
-        }
-        // for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
-        //     printf("%d, ", mySocket->rcvdBuff[i]);
+        // for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
+        //     printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
         // }
-        printf("\n");
+        for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
+            printf("%d, ", mySocket->rcvdBuff[i]);
+        }
+        printf("from %d:%d\n", mySocket->dest.addr, mySocket->dest.port);
 
         mySocket->lastRead += endIndex - mySocket->lastReadIndex + 1;
         mySocket->lastReadIndex = endIndex + 1;
@@ -280,11 +318,63 @@ implementation{
 
         dbg(TRANSPORT_CHANNEL, "SYN packet sent to Node %d, port %d\n", address->addr, address->port);
         currSocket->state = SYN_SENT;
+        call synTimer.startOneShot(5000);
         return SUCCESS;
     }
 
+    event void synTimer.fired() {
+        uint32_t *keys = call sockets.getKeys();
+        int i;
+        for(i = call sockets.size() - 1; i >= 0; i--) {
+            socket_store_t *mySocket = call sockets.getPointer(keys[i]);
+            // Start send from whatever was last ACKed
+            if(mySocket->state == SYN_SENT) {
+                // If it's still SYN_SENT, then send try connecting again.
+                dbg(TRANSPORT_CHANNEL, "Attempting to connect from %d:%d to %d:%d again\n", TOS_NODE_ID, mySocket->src.port, mySocket->dest.addr, mySocket->dest.port);
+                call Transport.connect(keys[i], &(mySocket->dest));
+            }
+        }
+    }
+
+    event void synackTimer.fired() {
+        // Challenge: how do I tell which socket is the one that I need to re-send the SYNACK for?
+        // Because, I don't know when accept() finishes.
+        uint32_t *keys = call sockets.getKeys();
+        int i, j;
+        for(i = call sockets.size() - 1; i >= 0; i--) {
+            socket_store_t *mySocket = call sockets.getPointer(keys[i]);
+            if(mySocket->state != SYN_RCVD) continue;
+        
+            dbg(TRANSPORT_CHANNEL, "Send SYNACK again %d:%d to %d:%d again\n", TOS_NODE_ID, mySocket->src.port, mySocket->dest.addr, mySocket->dest.port);
+            for(j = call attemptedConnections.size(); j >= 0; j--) {            
+                connection curr = call attemptedConnections.popfront();
+                // Likely the matching connection
+                if(curr.serverPort == mySocket->src.port) {
+                    makeTcpHeader(
+                        &sendTcpHeader, curr.serverPort, curr.clientPort, call Random.rand16() % 500, 
+                        curr.seqNum + 1, SYNACK, TCP_MAX_DATA * 2
+                    );
+                    makePack(&sendPackage, TOS_NODE_ID, curr.clientNode, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
+                    call Ip.ping(sendPackage);
+                }
+                call attemptedConnections.pushback(curr);
+            }
+        }
+    }
+
     command error_t Transport.close(socket_t fd) {
-        return FAIL;
+        socket_store_t *mySocket = call sockets.getPointer(fd);
+        if(fd == 0 || mySocket->state != ESTABLISHED) {
+            dbg(TRANSPORT_CHANNEL, "Socket is not Established\n");
+            return FAIL;
+        }
+        mySocket->state = CLOSED;
+
+        makeTcpHeader(&sendTcpHeader, mySocket->src.port, mySocket->dest.port, mySocket->lastSent + 1, 0, FIN, 0);
+        makePack(&sendPackage, TOS_NODE_ID, mySocket->dest.addr, 20, PROTOCOL_TCP, mySocket->lastSent + 18, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
+        call Ip.ping(sendPackage);
+        
+        return SUCCESS;
     }
 
     command error_t Transport.release(socket_t fd) {
