@@ -25,9 +25,18 @@ implementation {
 
     components CommandHandlerC;
     Node.CommandHandler -> CommandHandlerC;
+
+    components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”
+	Node.connectTimer -> myTimerA;
+
+    components new TimerMilliC() as myTimerB; //create a new timer with alias “myTimerC”
+	Node.acceptTimer -> myTimerB;
 	
 	components NeighborC;
 	Node.Neighbor -> NeighborC;
+
+    components TransportC;
+    Node.Transport -> TransportC;
 
     components LinkStateC;
     Node.LinkState ->LinkStateC;

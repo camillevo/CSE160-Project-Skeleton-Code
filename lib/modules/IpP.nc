@@ -6,6 +6,8 @@ module IpP{
     uses interface LinkState;
     uses interface SimpleSend;
     uses interface List<pack> as cache;
+    uses interface Timer<TMilli> as checkCache;
+    uses interface Transport;
 }
 
 implementation{
@@ -22,11 +24,22 @@ implementation{
 		}
     }
 
+    event void checkCache.fired() {
+        int size = call cache.size();
+		int i;
+		for(i = 0; i < size; i++) {
+			dbg(GENERAL_CHANNEL, "Sending packet from my cache out now\n");
+			call Ip.ping(call cache.popfront());
+		}
+    }
+
     command void Ip.ping(pack sendPacket){
-        if(routingTableReady == FALSE) {
+        if(routingTableReady == FALSE || call LinkState.getNextHop(sendPacket.dest) == 0) {
             call cache.pushback(sendPacket);
+            call checkCache.startOneShot(2000);
+            return;
         }
-        printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
+        //printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
         call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 
@@ -36,12 +49,10 @@ implementation{
 
 			switch(myMsg->protocol) {
 				case PROTOCOL_LINKSTATE:
-                    if(myMsg->src == 6) {
-                        dbg(GENERAL_CHANNEL, "Received lsp from 6\n");
-                    }
                     call LinkState.addLsp(myMsg);
 					break;
                 case PROTOCOL_PING:
+                    //printf("%d received.\n", TOS_NODE_ID);
                     if(myMsg->dest != TOS_NODE_ID) {
                         myMsg->TTL = myMsg->TTL - 1;
                         call Ip.ping(*myMsg);
@@ -50,10 +61,19 @@ implementation{
 			            dbg(GENERAL_CHANNEL, "Package Payload: %s\n", myMsg->payload);
                     }
                     break;
+                case PROTOCOL_TCP:
+                    if(myMsg->dest != TOS_NODE_ID) {
+                        myMsg->TTL = myMsg->TTL - 1;
+                        call Ip.ping(*myMsg);
+                    } else {
+                        call Transport.receive(myMsg);
+                    }
+                    break;
 			}
 			return msg;
 		}
 		dbg(GENERAL_CHANNEL, "Unknown Packet Type %d\n", len);
 		return msg;
 	}
+    event void Transport.connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack) {}
 }

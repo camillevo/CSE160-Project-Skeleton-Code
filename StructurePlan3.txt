@@ -21,8 +21,108 @@ Three-Way Handshake
     2. Send a SYN pack to start connection with random sequence number (x)
     3. When recieved, send a SYN+ACK with my own random sequence number (y) and ACK = x + 1
     4. When SYN+ACK is recieved, send ACK back w sequence number = x + 1 and ACK = y + 1
-    
-     
 
 
+Accept() returns AFTER 3-Way handshake is finished.
+Attempts to connect to this socket should be queued.
+On accept, check the queue if there's any finished connection attempts
 
+Goal: Complete connect() method. 
+1. SimpleSend, Recieve, and makePack should be in Transport
+2. The header information should include the Source Port, Destination Port, Sequence,
+Acknowledgement, Flags, Advertised Window, Data
+
+3. make new struct called TCPHeader with above fields.
+
+
+typedef nx_struct pack{
+	nx_uint16_t dest;
+	nx_uint16_t src;
+	nx_uint16_t seq;		//Sequence Number
+	nx_uint8_t TTL;		//Time to Live
+	nx_uint8_t protocol;
+	nx_uint8_t payload[PACKET_MAX_PAYLOAD_SIZE];
+}pack;
+
+
+Recieve() will store seqnum, state, and node/Port into a cache
+^ what is the bare minimum to store in the cache?
+can use a 2d cache and store and seq num and port
+accept will check cache and create socket
+
+Goal for before dinner: 
+1. receive send packet back out
+2. make timer for accept()
+3. accept goes and checks list
+
+------------------------------------------------------------------------------------------------------------------
+
+Camille's plan as of Friday, 11/20 at 11:30pm
+
+Node
+testClient (sourceport, dest, destport, transfer) {
+    socket() and bind()
+    add transfer and fd to an array (hopefulConnections maybe?)
+    call connect()
+    start timer
+}
+
+connect timer fires {
+    go through array and check if connection is established
+    if it is, write data to buffer
+    subtract what you wrote from array 
+    start timer again if there is anything left
+} 
+
+testServer {
+    socket() and bind()
+    start timer 
+}
+
+accept timer {
+    call accept
+    if you return something, read it
+}
+
+Transport
+connect (fd) {
+    make tcpHeader 
+    send header
+    change socket to SYN_SENT
+}
+
+accept () {
+    look through sockets
+    if any have a connection in buffer, then make new socket 
+    if socket is established, then read buffer
+}
+
+//event connectionReady () {
+//    find socket that matches parameters
+//    change socket to established
+//}
+
+receive (pack) {
+    if SYN 
+        add to buffer 
+        send synack 
+
+    if SYNACK
+        signal connectionReady
+        send ack
+    if ACK 
+        put data sent in buffered_data part of socket
+        send ACK back
+}
+
+
+CAMILLE - debuggs
+1. Change size of TCP Header & pack to reflect # of bytes sent
+2. When effectiveWindow != 11, we're sending 1 too many bytes
+    ex. Received data 121, 122, 123, 124, 125, 126, 127, 96, 118, 119, 120
+    Sent bytes 89 to 96
+    Which means 8 bytes are expected, only sent 7
+
+
+1. Forgot to make a resend timer!!!!
+2. Need to close connection 

@@ -41,22 +41,22 @@ implementation {
     }
 
     event void myTimer.fired() {
-        int i;
+        //int i;
         // empty confirmed list before calling findShortestPath();
         call confirmed.clear();
-        if(TOS_NODE_ID < 10) {
-            dbg(GENERAL_CHANNEL, " Got LSPs from ");
-        } else {
-            dbg(GENERAL_CHANNEL, "Got LSPs from ");
-        }
-        for(i = 1; i <= 30; i++) {
-            if(neighborMatrix[i - 1][0] != 0) {
-                printf("%d, ", i);
-            } else {
-                printf("--, ");
-            }
-        }
-        printf("\n");
+        // if(TOS_NODE_ID < 10) {
+        //     dbg(GENERAL_CHANNEL, " Got LSPs from ");
+        // } else {
+        //     dbg(GENERAL_CHANNEL, "Got LSPs from ");
+        // }
+        // for(i = 1; i <= 30; i++) {
+        //     if(neighborMatrix[i - 1][0] != 0) {
+        //         printf("%d, ", i);
+        //     } else {
+        //         printf("--, ");
+        //     }
+        // }
+        // printf("\n");
         findShortestPath();
     }
     
@@ -156,9 +156,9 @@ implementation {
 
         for(i = 0; i < call confirmed.size(); i++) {
             neighborPair current = call confirmed.get(keys[i]);
-            printf("  %d   |    %d    |   %d    |", current.node, current.nextHop, current.weight);
+            printf(" %2d   |   %2d    |   %d    |", current.node, current.nextHop, current.weight);
             if(current.backupWeight != 100) {
-                printf("   %d    |   %d\n", current.backupNextHop, current.backupWeight);
+                printf("  %2d    |   %d\n", current.backupNextHop, current.backupWeight);
             } else {
                 printf("   -    |   -\n");
             }
@@ -182,7 +182,16 @@ implementation {
     }
 
     command int LinkState.getNextHop(int node) {
-        return (call confirmed.get(node)).nextHop;
+        int nextHop = (call confirmed.get(node)).nextHop;
+        if(nextHop == 0) {
+            nextHop = (call confirmed.get(node)).backupNextHop;
+        }
+        // if(nextHop == 0) {
+        //     uint8_t* nb = call Neighbor.getNeighborArray();
+        //     printf("Going to send to random node %d\n", nb[1]);
+        //     nextHop = nb[1];
+        // }
+        return nextHop;
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

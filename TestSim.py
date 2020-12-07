@@ -13,6 +13,9 @@ class TestSim:
     CMD_PING = 0
     CMD_NEIGHBOR_DUMP = 1
     CMD_ROUTE_DUMP=3
+    CMD_TEST_CLIENT=4
+    CMD_TEST_SERVER=5
+    CMD_CLIENT_CLOSE=6
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -129,12 +132,18 @@ class TestSim:
         print 'Adding Channel', channelName;
         self.t.addChannel(channelName, out);
 
-    def testServer(self, destination):
-        self.sendCMD(self.CMD_TEST_SERVER, destination, "server command");
+    def testServer(self, address, port):
+        self.sendCMD(self.CMD_TEST_SERVER, address, "{0}".format(chr(port)));
 
-    def testClient(self, destination):
-        self.sendCMD(self.CMD_TEST_CLIENT, destination, "client command");
-        
+    def testClient(self, address, sourcePort, destination, destPort, transfer):
+        myList = [destination, sourcePort, destPort, transfer];
+        myString = "{0}{1}{2}{3}".format(chr(destination), chr(sourcePort), chr(destPort), chr(transfer));
+        self.sendCMD(self.CMD_TEST_CLIENT, address, myString);
+
+    def clientClose(self, address, sourcePort, destination, destPort):
+        myString = "{0}{1}{2}".format(chr(destination), chr(sourcePort), chr(destPort));
+        self.sendCMD(self.CMD_CLIENT_CLOSE, address, myString);
+
     def printer(msg1, msg2):
         print (msg2);
 
@@ -154,38 +163,21 @@ def main():
     s.addChannel(s.ROUTING_CHANNEL);
 
 
-    s.runTime(50);
-    #s.moteOff(8);
-    s.runTime(400);
-    # s.neighborDMP(4);
-    # s.runTime(10);
-    # s.cmdRouteDMP(4);
-    s.routeDMP(2);
     s.runTime(200);
-    # s.ping(3, 9, "3 to 9");
-    # s.runTime(60);
-    # s.ping(1, 7, "1 to 7");
-    # s.runTime(60);
-    # s.printer("turning off mote 3");
-    # s.moteOff(3);
-    # s.runTime(120);
-    # s.neighborDMP(4);
-    # s.runTime(10);
-    # s.cmdRouteDMP(4);
-    # s.routeDMP(4);
-    # s.runTime(10);
-    # s.ping(8, 1, "8 to 1");
-    # s.runTime(100);
+    s.routeDMP(4);
+    s.runTime(10);
+    s.ping(4, 1, "what's not clicking");
+    s.runTime(50);
+    s.ping(4, 1, "what's not clicking 2");
+    s.runTime(150);
 
-    # s.ping(2, 6, "2 to 6");
-    # s.runTime(20);
-
-    # s.moteOff(3);
-    # s.printer("ALERT: turned off mote 3");
-
-    # s.runTime(100);
-    # s.ping(2, 6, "2 to 6");
-    # s.runTime(10);
+    # #s.moteOff(8);
+    # s.runTime(400);
+    # # s.neighborDMP(4);
+    # # s.runTime(10);
+    # # s.cmdRouteDMP(4);
+    # s.routeDMP(2);
+    # s.runTime(200);
 
 
 if __name__ == '__main__':

@@ -13,6 +13,12 @@ implementation{
     components LinkStateC;
     IpP.LinkState -> LinkStateC;
 
+    components TransportC;
+    IpP.Transport -> TransportC;
+  
+    components new TimerMilliC() as myTimerA; //create a new timer with alias “myTimerC”
+    IpP.checkCache -> myTimerA;
+
     components new SimpleSendC(AM_PACK);
 	IpP.SimpleSend -> SimpleSendC;
 
