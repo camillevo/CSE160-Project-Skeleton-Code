@@ -9,5 +9,5 @@ interface CommandHandler{
    event void setTestClient(int destination, int sourcePort, int destPort, int transfer);
    event void setClientClose(int dest, int srcPort, int destPort);
    event void setAppServer();
-   event void setAppClient();
+   event void setAppClient(int port, uint8_t *username);
 }

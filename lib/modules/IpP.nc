@@ -75,5 +75,4 @@ implementation{
 		dbg(GENERAL_CHANNEL, "Unknown Packet Type %d\n", len);
 		return msg;
 	}
-    event void Transport.connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack) {}
 }

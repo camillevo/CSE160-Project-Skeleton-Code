@@ -136,7 +136,7 @@ implementation{
                 sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, TCP_HEADER_LENGTH + bytesToSend
             );
             //printf("sizeof tcp header = %d\n", sizeof(sendTcpHeader));
-            dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d on port %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend, mySocket->src.port);
+            //dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d on port %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend, mySocket->src.port);
             call Ip.ping(sendPackage);
             mySocket->lastSent += bytesToSend;
             mySocket->effectiveWindow -= bytesToSend;
@@ -146,7 +146,7 @@ implementation{
         if(mySocket->lastSent < mySocket->lastWritten - 1 || mySocket->lastSent > mySocket->lastWritten + 1) {
             call resendTimer.startOneShot(1500);
         } else {
-            dbg(TRANSPORT_CHANNEL, "lastWritten = %d, lastSent = %d\n", mySocket->lastWritten, mySocket->lastSent);
+            //dbg(TRANSPORT_CHANNEL, "lastWritten = %d, lastSent = %d\n", mySocket->lastWritten, mySocket->lastSent);
         }
     }
 
@@ -238,18 +238,18 @@ implementation{
             break;
             default: {
                 uint8_t TEMP;
-                printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
+                //printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
                 if(myHeader->sequence <= mySocket->nextExpected || myHeader->sequence + myHeader->ack <= mySocket->nextExpected) {
                     // ack field is repurposed as size on client side
                     mySocket->nextExpected = myHeader->sequence + myHeader->ack;
                     mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
                     
                     memcpy(&(mySocket->rcvdBuff[(uint8_t)(myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex)]), myHeader->payload, TCP_MAX_DATA);
-                    dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
+                    //dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
 
                     TEMP = call Transport.read(fd);
                     mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
-                    dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
+                    //dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);    
                 }
@@ -283,7 +283,7 @@ implementation{
         netBytes = netBytes - (netBytes % 2); // only read even number
         endIndex = netBytes + mySocket->lastReadIndex - 1;
 
-        dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
+        //dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
         dbg(TRANSPORT_CHANNEL, "Received data ");
         for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
             printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);

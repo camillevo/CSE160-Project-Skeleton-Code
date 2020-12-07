@@ -84,6 +84,11 @@ implementation{
                 signal CommandHandler.setClientClose(buff[0], buff[1], buff[2]);
                 break;
 
+            case CMD_APP_CLIENT:
+                dbg(COMMAND_CHANNEL, "Command Type: App Client Setup\n");
+                signal CommandHandler.setAppClient(buff[0], &buff[1]);
+                break;
+
             default:
                 dbg(COMMAND_CHANNEL, "CMD_ERROR: \"%d\" does not match any known commands.\n", msg->id);
                 break;

@@ -1,0 +1,29 @@
+Hi Camille!
+
+1. Create commands in TestSim.py for hello, msg, whisper, and listusr.
+2. Change logic in msgBuff to store chars
+
+
+s.hello(4, 'camille', 15);
+s.hello(8, 'adrian', 5);
+s.msg(4, 'Hello World');
+s.whisper(4, 'adrian', 'Hello World'); # send message from 4 to "adrian"
+s.listusr(4);
+
+Design Choices:
+Do I make a separate command for
+all cases?
+Or do I use the same command for all of
+them?
+More code, server is gonna have to interpret anyway.
+Going with separate option.
+
+final choice:
+hello will be a separate command.
+everything else is same.
+only making hello for now.
+-- no, each has diff # of arguments
+option - set other arguments to 0?
+
+choice: just do hello for now with 
+temp names.

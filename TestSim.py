@@ -16,6 +16,7 @@ class TestSim:
     CMD_TEST_CLIENT=4
     CMD_TEST_SERVER=5
     CMD_CLIENT_CLOSE=6
+    CMD_APP_CLIENT=7
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -144,6 +145,10 @@ class TestSim:
         myString = "{0}{1}{2}".format(chr(destination), chr(sourcePort), chr(destPort));
         self.sendCMD(self.CMD_CLIENT_CLOSE, address, myString);
 
+    def hello(self, address, username, port):
+        myString = "{0}{1}".format(chr(port), username);
+        self.sendCMD(self.CMD_APP_CLIENT, address, myString);
+
     def printer(msg1, msg2):
         print (msg2);
 
@@ -164,20 +169,7 @@ def main():
 
 
     s.runTime(200);
-    s.routeDMP(4);
-    s.runTime(10);
-    s.ping(4, 1, "what's not clicking");
-    s.runTime(50);
-    s.ping(4, 1, "what's not clicking 2");
-    s.runTime(150);
-
-    # #s.moteOff(8);
-    # s.runTime(400);
-    # # s.neighborDMP(4);
-    # # s.runTime(10);
-    # # s.cmdRouteDMP(4);
-    # s.routeDMP(2);
-    # s.runTime(200);
+    s.hello(4, "camille", 15);
 
 
 if __name__ == '__main__':

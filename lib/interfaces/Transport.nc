@@ -148,11 +148,6 @@ interface Transport{
     */
    command error_t listen(socket_t fd);
 
-   /**
-    * Client has gotten a response
-    */
-   event void connectionReady(uint8_t clientPort, uint16_t server, uint8_t serverPort, uint16_t sequence, uint16_t ack);
-
    command void sendBuffer(socket_store_t *mySocket);
 
    command bool findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
