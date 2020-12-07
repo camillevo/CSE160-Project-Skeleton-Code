@@ -182,7 +182,16 @@ implementation {
     }
 
     command int LinkState.getNextHop(int node) {
-        return (call confirmed.get(node)).nextHop;
+        int nextHop = (call confirmed.get(node)).nextHop;
+        if(nextHop == 0) {
+            nextHop = (call confirmed.get(node)).backupNextHop;
+        }
+        // if(nextHop == 0) {
+        //     uint8_t* nb = call Neighbor.getNeighborArray();
+        //     printf("Going to send to random node %d\n", nb[1]);
+        //     nextHop = nb[1];
+        // }
+        return nextHop;
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

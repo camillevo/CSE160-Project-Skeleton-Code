@@ -6,6 +6,7 @@ module IpP{
     uses interface LinkState;
     uses interface SimpleSend;
     uses interface List<pack> as cache;
+    uses interface Timer<TMilli> as checkCache;
     uses interface Transport;
 }
 
@@ -23,12 +24,22 @@ implementation{
 		}
     }
 
+    event void checkCache.fired() {
+        int size = call cache.size();
+		int i;
+		for(i = 0; i < size; i++) {
+			dbg(GENERAL_CHANNEL, "Sending packet from my cache out now\n");
+			call Ip.ping(call cache.popfront());
+		}
+    }
+
     command void Ip.ping(pack sendPacket){
-        if(routingTableReady == FALSE || call LinkState.getNextHop(sendPacket.dest == 0)) {
+        if(routingTableReady == FALSE || call LinkState.getNextHop(sendPacket.dest) == 0) {
             call cache.pushback(sendPacket);
+            call checkCache.startOneShot(2000);
             return;
         }
-        printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
+        //printf("Sending packet from %d to %d\n", TOS_NODE_ID, call LinkState.getNextHop(sendPacket.dest));
         call SimpleSend.send(sendPacket, call LinkState.getNextHop(sendPacket.dest));
     }
 
@@ -41,6 +52,7 @@ implementation{
                     call LinkState.addLsp(myMsg);
 					break;
                 case PROTOCOL_PING:
+                    //printf("%d received.\n", TOS_NODE_ID);
                     if(myMsg->dest != TOS_NODE_ID) {
                         myMsg->TTL = myMsg->TTL - 1;
                         call Ip.ping(*myMsg);

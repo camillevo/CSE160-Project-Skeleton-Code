@@ -154,7 +154,7 @@ def main():
     s = TestSim();
     s.runTime(10);
     s.loadTopo("demo.topo");
-    s.loadNoise("some_noise.txt");
+    s.loadNoise("no_noise.txt");
     s.bootAll();
     s.addChannel(s.COMMAND_CHANNEL);
    # s.addChannel(s.FLOODING_CHANNEL);
@@ -163,9 +163,13 @@ def main():
     s.addChannel(s.ROUTING_CHANNEL);
 
 
-    s.runTime(50);
+    s.runTime(200);
+    s.routeDMP(4);
+    s.runTime(10);
     s.ping(4, 1, "what's not clicking");
-    s.runTime(300);
+    s.runTime(50);
+    s.ping(4, 1, "what's not clicking 2");
+    s.runTime(150);
 
     # #s.moteOff(8);
     # s.runTime(400);

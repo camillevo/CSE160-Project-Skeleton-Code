@@ -30,10 +30,10 @@ def main():
     # After sending a ping, simulate a little to prevent collision.
 
     s.runTime(400);
-    s.routeDMP(4);
-    s.runTime(2);
-    s.routeDMP(1);
-    s.runTime(60);
+    # s.routeDMP(4);
+    # s.runTime(2);
+    # s.routeDMP(1);
+    # s.runTime(60);
     s.testServer(well_known_mote, well_known_port);
     s.runTime(60);
 
@@ -42,9 +42,9 @@ def main():
     s.runTime(100);
 
     #Testing 1 Client with Many Connections to 1 Server:
-    # s.testClient(4, 23, well_known_mote, well_known_port, 150);
-    # s.runTime(1);
-    # s.runTime(1000);
+    s.testClient(4, 23, well_known_mote, well_known_port, 150);
+    s.runTime(1);
+    s.runTime(1000);
 
     # Testing 1 Client with Many Connections, 1 for each Server:
     # s.testServer(other_well_known_mote, other_well_known_port);

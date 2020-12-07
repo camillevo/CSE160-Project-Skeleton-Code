@@ -89,7 +89,7 @@ implementation{
         }
         // If there's not enough room in the socket for bufflen
         if(mySocket->lastAckIndex > 0 && SOCKET_BUFFER_SIZE - currIndex < bufflen) {
-            dbg(TRANSPORT_CHANNEL, "Removed %d ACKed bytes\n", currIndex);
+            //dbg(TRANSPORT_CHANNEL, "Removed %d ACKed bytes\n", currIndex);
             // If more room is needed & available, remove already ACKed bytes
             currIndex = (uint8_t) (mySocket->lastWritten - mySocket->lastAck);
             memcpy(&(mySocket->sendBuff[0]), &(mySocket->sendBuff[mySocket->lastAckIndex + 1]), currIndex);
@@ -120,7 +120,7 @@ implementation{
             if(mySocket->effectiveWindow < bytesToSend) bytesToSend = mySocket->effectiveWindow;
             //printf("sendBuffer() effectiveWindow = %d\n", mySocket->effectiveWindow);
             if(bytesToSend == 0) {
-                dbg(TRANSPORT_CHANNEL, "Need more data!\n");
+                dbg(TRANSPORT_CHANNEL, "Need more data on port %d!\n", mySocket->src.port);
                 return;
             }
             // Setting effectiveWindow to 0 because Server doesn't need it
@@ -238,23 +238,22 @@ implementation{
             break;
             default: {
                 uint8_t TEMP;
-                //printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
-                mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
-                if(myHeader->sequence <= mySocket->nextExpected) {
+                printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
+                if(myHeader->sequence <= mySocket->nextExpected || myHeader->sequence + myHeader->ack <= mySocket->nextExpected) {
                     // ack field is repurposed as size on client side
-                    mySocket->nextExpected += myHeader->ack;
+                    mySocket->nextExpected = myHeader->sequence + myHeader->ack;
+                    mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
+                    
+                    memcpy(&(mySocket->rcvdBuff[(uint8_t)(myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex)]), myHeader->payload, TCP_MAX_DATA);
+                    dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
+
+                    TEMP = call Transport.read(fd);
+                    mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
+                    dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
                 } else {
-                    dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);
-                    return FAIL;
+                    dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);    
                 }
 
-                memcpy(&(mySocket->rcvdBuff[(uint8_t)(myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex)]), myHeader->payload, TCP_MAX_DATA);
-                dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
-
-                TEMP = call Transport.read(fd);
-                mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
-                dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
-                
                 makeTcpHeader(&sendTcpHeader, myHeader->destPort, myHeader->sourcePort, 0, mySocket->nextExpected, ACK, mySocket->effectiveWindow);
                 makePack(&sendPackage, TOS_NODE_ID, package->src, 20, PROTOCOL_TCP, myHeader->sequence + 18, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
                 call Ip.ping(sendPackage);
@@ -286,21 +285,21 @@ implementation{
 
         dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
         dbg(TRANSPORT_CHANNEL, "Received data ");
-        // for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
-        //     printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
-        // }
-        for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
-            printf("%d, ", mySocket->rcvdBuff[i]);
+        for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
+            printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
         }
+        // for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
+        //     printf("%d, ", mySocket->rcvdBuff[i]);
+        // }
         printf("from %d:%d\n", mySocket->dest.addr, mySocket->dest.port);
 
-        mySocket->lastRead += endIndex - mySocket->lastReadIndex + 1;
+        mySocket->lastRead += netBytes;
         mySocket->lastReadIndex = endIndex + 1;
 
         if(endIndex > SOCKET_BUFFER_SIZE / 2) {
             memcpy(&(mySocket->rcvdBuff[0]), &(mySocket->rcvdBuff[mySocket->lastReadIndex + 1]), netBytes);
             mySocket->lastReadIndex = 0;
-            dbg(TRANSPORT_CHANNEL, "Removed %d bytes from rcvdBuff\n", netBytes);
+            //dbg(TRANSPORT_CHANNEL, "Removed %d bytes from rcvdBuff\n", netBytes);
         }
 
         return netBytes;
@@ -346,7 +345,7 @@ implementation{
             if(mySocket->state != SYN_RCVD) continue;
         
             dbg(TRANSPORT_CHANNEL, "Send SYNACK again %d:%d to %d:%d again\n", TOS_NODE_ID, mySocket->src.port, mySocket->dest.addr, mySocket->dest.port);
-            for(j = call attemptedConnections.size(); j >= 0; j--) {            
+            for(j = call attemptedConnections.size(); j > 0; j--) {            
                 connection curr = call attemptedConnections.popfront();
                 // Likely the matching connection
                 if(curr.serverPort == mySocket->src.port) {
