@@ -27,3 +27,19 @@ option - set other arguments to 0?
 
 choice: just do hello for now with 
 temp names.
+
+
+Mon 12/7
+goal: finish hello() and msg();
+
+
+read() {
+    1. check for /r/n.
+        a. if we got it, then take the string from lastRead to curr
+        if not, return
+}
+
+
+officially giving up and moving on!
+will make a NEW hashmap of usernames instead
+of messing with this dumb socket stuff >:(

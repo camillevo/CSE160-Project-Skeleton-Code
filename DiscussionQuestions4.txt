@@ -1,0 +1,37 @@
+
+Discussion Questions
+
+1. The chat client and server application as described above uses a single transport
+connection in each direction per client. A different design would use a transport
+connection per command and reply. Describe the pros and cons of these two
+designs.
+
+One pro of using a single connection per client and server relationship is that setting up
+the connection only has to happen one time, and then many messages can be sent. One con is 
+that all messages share the same connection info, so if multiple users were on the same port 
+and communicating with the same server, it wouldn't work. With a new connection per command,
+multiple users could use the same port, but the connection setup and teardown each time would
+be inefficient.
+
+2. Describe which features of your transport protocol are a good fit to the chat client an
+server application, and which are not. Are the features that are not a good fit simply
+unnecessary, or are they problematic, and why? If problematic, how can we best deal with
+them?
+
+Some features, especially regarding continuos writing and reading, are not a perfect fit for 
+the chat client, where the length of commands can be written into the socket buffer at once, and
+don't need multiple write()'s to write the entire length of data.
+
+3. Read through the HTTP protocol specification covered in class. Describe which features
+of your transport protocol are a good fit to the web server application, and which are not.
+Are the features that are not a good fit simply unnecessary, or are they problematic, and
+why? If problematic, how can we best deal with them?
+
+I took some shortcuts in Project 3 by reusing certain fields, like Ack, to have different purposes
+on the client vs. server side. For HTTP, the server has to be able to send meaningful data to the
+client too, so both sides must be close to symmetrical.
+
+4. Describe one way in which you would like to improve your design. 
+
+I would like to better account for reliability, and have each individual packet have it's own
+calculated RTT, instead of a generic RTT with the send timer.

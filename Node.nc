@@ -33,6 +33,8 @@ implementation{
 	pack sendPackage;
 	int seqNum = 0;
 	int * sequenceNum = &seqNum;
+    int GLOBAL_SERVER = 1;
+    int GLOBAL_SERVER_PORT = 41;
 
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
@@ -88,17 +90,23 @@ implementation{
 	}
 
 	event void CommandHandler.setTestClient(int destination, int sourcePort, int destPort, int transfer){
-        call Connection.testClient(destination, sourcePort, destPort, transfer);
+        call Connection.testClientBytes(destination, sourcePort, destPort, transfer);
 	}
 
     event void CommandHandler.setClientClose(int dest, int srcPort, int destPort){
         call Connection.clientClose(dest, srcPort, destPort);
     }
 
-	event void CommandHandler.setAppServer(){}
+	event void CommandHandler.setAppServer(int port, uint8_t *msg){
+        dbg(TRANSPORT_CHANNEL, "Setting %d:%d username as %s\n", TOS_NODE_ID, port, msg);
+        // testCientString sets up and calls connect()
+        call Connection.testClientString(GLOBAL_SERVER, port, GLOBAL_SERVER_PORT, msg);
+    }
 
-	event void CommandHandler.setAppClient(int port, uint8_t *username){
-        dbg(TRANSPORT_CHANNEL, "Will setup connection on %d:%d as user %s\n", TOS_NODE_ID, port, username);
+	event void CommandHandler.setAppClient(int port, uint8_t *msg){
+        dbg(TRANSPORT_CHANNEL, "Sending command on %d:%d: %s\n", TOS_NODE_ID, port, msg);
+
+        call Connection.sendMsg(GLOBAL_SERVER, port, GLOBAL_SERVER_PORT, msg);
     }
 
 	void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

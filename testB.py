@@ -22,7 +22,8 @@ def main():
     s.hello(4, 'camille', 15);
     s.runTime(20);
     s.hello(8, 'adrian', 5);
-    # s.msg(4, 'Hello World');
+    s.runTime(30);
+    s.message(4, 15, 'Hello World');
     # s.whisper(4, 'adrian', 'Hello World'); # send message from 4 to "adrian"
     # s.listusr(4);
 

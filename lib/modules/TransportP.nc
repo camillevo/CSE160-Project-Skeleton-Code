@@ -5,6 +5,7 @@ module TransportP{
   provides interface Transport;
 
   uses interface Hashmap<socket_store_t> as sockets;
+  //uses interface Hashmap<char[20]> as users;
   uses interface List<connection> as attemptedConnections;
   uses interface Timer<TMilli> as resendTimer;
   uses interface Timer<TMilli> as synTimer;
@@ -20,7 +21,7 @@ implementation{
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
     void makeTcpHeader(tcpHeader *myHeader, uint8_t sourcePort, uint8_t destPort, uint16_t sequence, uint16_t ack, enum flags flag, uint16_t advertisedWindow);
     //socket_t findSocket(uint16_t server, uint8_t serverPort, uint8_t clientPort) {
-
+    int findCommand(uint8_t *cmdString);
 
     command socket_t Transport.socket() {
         if(call sockets.size() < 10) {
@@ -44,6 +45,7 @@ implementation{
     command socket_t Transport.accept(socket_t fd){
         socket_store_t *currSocket = call sockets.getPointer(fd);
         socket_t newFD;
+        //socket_store_t *newSocket = malloc(sizeof(socket));
         socket_store_t newSocket;
 
         int i;
@@ -70,6 +72,7 @@ implementation{
         newSocket.lastRead = curr.seqNum;
         newSocket.lastRcvd = curr.seqNum;
         newSocket.lastReadIndex = 0;
+        // newSocket.username = malloc(20);
         newSocket.nextExpected = curr.seqNum + 1;
         newSocket.effectiveWindow = TCP_MAX_DATA * 2;
 
@@ -85,6 +88,7 @@ implementation{
         uint8_t currIndex = (uint8_t) (mySocket->lastWritten - mySocket->lastAck + mySocket->lastAckIndex);
         uint16_t min;
         if(mySocket->state != ESTABLISHED) {
+            //printf("returning :/\n");
             return 0;
         }
         // If there's not enough room in the socket for bufflen
@@ -97,7 +101,7 @@ implementation{
         }
         min = (bufflen < (SOCKET_BUFFER_SIZE - currIndex) ? bufflen : SOCKET_BUFFER_SIZE - currIndex);
 
-        dbg(TRANSPORT_CHANNEL, "Wrote %d bytes at buff[%d]\n", min, currIndex);
+        //dbg(TRANSPORT_CHANNEL, "Wrote %d bytes at buff[%d]\n", min, currIndex);
                        
         memcpy(&(mySocket->sendBuff[currIndex]), buff, SOCKET_BUFFER_SIZE - currIndex);
         mySocket->lastWritten = mySocket->lastWritten + min;
@@ -114,13 +118,12 @@ implementation{
             return;
         }
         while(mySocket->effectiveWindow > 0) {
-            int i;
             // Find min of effectiveWindow, lastWritten, and TCP_MAX_DATA
             uint8_t bytesToSend = (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1) > TCP_MAX_DATA ? TCP_MAX_DATA : (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1);
             if(mySocket->effectiveWindow < bytesToSend) bytesToSend = mySocket->effectiveWindow;
             //printf("sendBuffer() effectiveWindow = %d\n", mySocket->effectiveWindow);
             if(bytesToSend == 0) {
-                dbg(TRANSPORT_CHANNEL, "Need more data on port %d!\n", mySocket->src.port);
+                //dbg(TRANSPORT_CHANNEL, "Need more data on port %d!\n", mySocket->src.port);
                 return;
             }
             // Setting effectiveWindow to 0 because Server doesn't need it
@@ -178,7 +181,7 @@ implementation{
                 myConnection.seqNum = myHeader->sequence;
                 myConnection.serverPort = myHeader->destPort;
                 call attemptedConnections.pushfront(myConnection);
-                dbg(TRANSPORT_CHANNEL, "SYN received from Node %d, port %d\n", package->src, myHeader->sourcePort);
+                //dbg(TRANSPORT_CHANNEL, "SYN received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
                 mySocket->state = SYN_RCVD;
 
@@ -194,7 +197,7 @@ implementation{
             }
             break;
             case SYNACK: {
-                dbg(TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
+                //dbg(TRANSPORT_CHANNEL, "SYNACK received from Node %d, port %d\n", package->src, myHeader->sourcePort);
 
                 // check if ack is the same as the sequence I sent
                 if(myHeader->ack != mySocket->lastSent + 1) {
@@ -233,27 +236,23 @@ implementation{
                 mySocket->lastAck = myHeader->ack;
                 mySocket->effectiveWindow = myHeader->advertisedWindow - (mySocket->lastSent - mySocket->lastAck + 1);
 
-                dbg(TRANSPORT_CHANNEL, "ACK: %d received from Node %d, port %d\n", myHeader->ack, package->src, myHeader->sourcePort);
+                //dbg(TRANSPORT_CHANNEL, "ACK: %d received from Node %d, port %d\n", myHeader->ack, package->src, myHeader->sourcePort);
             }
             break;
             default: {
                 uint8_t TEMP;
-                //printf("seq recieved %d, lastRead %d, lastReadIndex %d\n", myHeader->sequence, mySocket->lastRead, mySocket->lastReadIndex);
                 if(myHeader->sequence <= mySocket->nextExpected || myHeader->sequence + myHeader->ack <= mySocket->nextExpected) {
                     // ack field is repurposed as size on client side
                     mySocket->nextExpected = myHeader->sequence + myHeader->ack;
                     mySocket->lastRcvd = myHeader->sequence + myHeader->ack - 1;
                     
                     memcpy(&(mySocket->rcvdBuff[(uint8_t)(myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex)]), myHeader->payload, TCP_MAX_DATA);
-                    //dbg(TRANSPORT_CHANNEL, "Writing at rcvdBuffer[%d]\n", (uint8_t) (myHeader->sequence - mySocket->lastRead - 1 + mySocket->lastReadIndex));
-
+                    
                     TEMP = call Transport.read(fd);
                     mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
-                    //dbg(TRANSPORT_CHANNEL, "Advertising my window as %d\n", mySocket->effectiveWindow);
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);    
                 }
-
                 makeTcpHeader(&sendTcpHeader, myHeader->destPort, myHeader->sourcePort, 0, mySocket->nextExpected, ACK, mySocket->effectiveWindow);
                 makePack(&sendPackage, TOS_NODE_ID, package->src, 20, PROTOCOL_TCP, myHeader->sequence + 18, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
                 call Ip.ping(sendPackage);
@@ -275,34 +274,72 @@ implementation{
     }
 
     command uint16_t Transport.read(socket_t fd) {
-        // Proj 3: print all the bytes I can, return amount printed
+        uint8_t i = 0;
+        //socket_t *keys = call sockets.getKeys();
         socket_store_t *mySocket = call sockets.getPointer(fd);
-        int i;
-        uint8_t endIndex;
-        uint8_t netBytes = mySocket->lastRcvd - mySocket->lastRead;
-        netBytes = netBytes - (netBytes % 2); // only read even number
-        endIndex = netBytes + mySocket->lastReadIndex - 1;
+        uint8_t *endIndex = strstr((const char*) &(mySocket->rcvdBuff[mySocket->lastReadIndex]), "\r\n");
+        uint8_t *cmd, *cmdMessage; 
+        uint8_t netBytes = endIndex - &(mySocket->rcvdBuff[mySocket->lastReadIndex]);
 
-        //dbg(TRANSPORT_CHANNEL, "Reading from [%d] to [%d]\n", mySocket->lastReadIndex, endIndex);
-        dbg(TRANSPORT_CHANNEL, "Received data ");
-        for(i = mySocket->lastReadIndex; i <= endIndex; i += 2) {
-            printf("%d, ", (mySocket->rcvdBuff[i] << 8) + mySocket->rcvdBuff[i + 1]);
-        }
-        // for(i = mySocket->lastReadIndex; i <= endIndex; i++) {
-        //     printf("%d, ", mySocket->rcvdBuff[i]);
-        // }
-        printf("from %d:%d\n", mySocket->dest.addr, mySocket->dest.port);
+        if(endIndex == NULL) return 0;
 
-        mySocket->lastRead += netBytes;
-        mySocket->lastReadIndex = endIndex + 1;
+        strncpy(cmdMessage, (const char*) &(mySocket->rcvdBuff[mySocket->lastReadIndex]), netBytes);
+        cmdMessage[netBytes] = '\0';
 
-        if(endIndex > SOCKET_BUFFER_SIZE / 2) {
-            memcpy(&(mySocket->rcvdBuff[0]), &(mySocket->rcvdBuff[mySocket->lastReadIndex + 1]), netBytes);
-            mySocket->lastReadIndex = 0;
-            //dbg(TRANSPORT_CHANNEL, "Removed %d bytes from rcvdBuff\n", netBytes);
+        if(TOS_NODE_ID != 1) {
+            return call Transport.readClient(mySocket, (char*) cmdMessage);
         }
 
+        dbg(TRANSPORT_CHANNEL, "Got command \"%s\"\n", cmdMessage);
+
+        switch(findCommand(cmdMessage)) {
+            case 0: 
+                cmd = strtok(NULL, " ");
+                strncpy(mySocket->username, (const char*) cmd, strlen(cmd) + 1);
+                break;
+            case 1: 
+                // cmd = strtok(NULL, "");
+                // for(i = call sockets.size() - 1; i >= 0; i--) {
+                //     socket_store_t curr = call sockets.get(keys[i]);
+                //     if(curr.state == ESTABLISHED) {
+                //         // I'll verify Server's acks and stuff later.
+                //         // make the string
+                //         call Transport.write(keys[i], cmdMessage, strlen(cmdMessage) + 1);
+                //     }
+                // }
+
+                break;
+            default:
+                dbg(TRANSPORT_CHANNEL, "Not a known command\n");
+                break;
+        }
+
+        mySocket->lastRead += (netBytes + 3);
+        mySocket->lastReadIndex += (netBytes + 3);
         return netBytes;
+    }
+
+    command uint8_t Transport.readClient(socket_store_t *mySocket, char *message) {
+        char * user = strtok(message, " ");
+        char * msg = strtok(NULL, "");
+
+        dbg(TRANSPORT_CHANNEL, "%s says: %s\n", user, msg);
+        
+        mySocket->lastRead += (strlen(message) + 3);
+        mySocket->lastReadIndex += (strlen(message) + 3);
+        return strlen(message);
+    }
+
+
+    int findCommand(uint8_t *cmdString) {
+        char * cmd = strtok((char*)cmdString, " ");
+        if(strcmp(cmd, "hello") == 0) {
+            return 0;
+        } else if(strcmp(cmd, "msg") == 0) {
+            return 1;
+        } else {
+            return 5;
+        }
     }
 
     command error_t Transport.connect(socket_t fd, socket_addr_t * address) {
@@ -315,7 +352,7 @@ implementation{
         makePack(&sendPackage, TOS_NODE_ID, (uint16_t) address->addr, 20, PROTOCOL_TCP, sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, PACKET_MAX_PAYLOAD_SIZE);
         call Ip.ping(sendPackage);
 
-        dbg(TRANSPORT_CHANNEL, "SYN packet sent to Node %d, port %d\n", address->addr, address->port);
+        //dbg(TRANSPORT_CHANNEL, "SYN packet sent to Node %d, port %d\n", address->addr, address->port);
         currSocket->state = SYN_SENT;
         call synTimer.startOneShot(5000);
         return SUCCESS;

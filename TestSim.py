@@ -17,6 +17,7 @@ class TestSim:
     CMD_TEST_SERVER=5
     CMD_CLIENT_CLOSE=6
     CMD_APP_CLIENT=7
+    CMD_APP_SERVER=8
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -146,7 +147,11 @@ class TestSim:
         self.sendCMD(self.CMD_CLIENT_CLOSE, address, myString);
 
     def hello(self, address, username, port):
-        myString = "{0}{1}".format(chr(port), username);
+        myString = "{0}{1}".format(chr(port), "hello " + username + "\r\n");
+        self.sendCMD(self.CMD_APP_SERVER, address, myString);
+
+    def message(self, address, port, message):
+        myString = "{0}{1}".format(chr(port), "msg " + message + "\r\n");
         self.sendCMD(self.CMD_APP_CLIENT, address, myString);
 
     def printer(msg1, msg2):

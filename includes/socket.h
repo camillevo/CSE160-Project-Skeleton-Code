@@ -65,6 +65,8 @@ typedef struct socket_store_t{
 
     uint16_t RTT;
     uint8_t effectiveWindow;
+    char username[10];
+    //uint8_t *username;
 }socket_store_t;
 
 
