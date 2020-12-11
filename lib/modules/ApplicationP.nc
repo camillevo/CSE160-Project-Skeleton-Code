@@ -17,6 +17,13 @@ implementation{
 
     command uint8_t Application.read(socket_store_t *mySocket, char *message) {
         int temp;
+
+        if(TOS_NODE_ID != 1) {
+            return readClient(mySocket, message);
+        }
+
+        dbg(TRANSPORT_CHANNEL, "Got command \"%s\"\n", message);
+
         cmd = strtok(message, " ");
         switch(findCommand(cmd)) {
             case 0: 
@@ -32,6 +39,8 @@ implementation{
                 dbg(TRANSPORT_CHANNEL, "Not a known command\n");
                 break;
         }
+
+        return 1;
 
     }
 
