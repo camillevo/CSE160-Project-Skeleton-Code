@@ -28,6 +28,9 @@ implementation{
   components RandomC;
   TransportP.Random -> RandomC;
 
+  components ApplicationC;
+  TransportP.Application -> ApplicationC;
+
   components IpC;
   TransportP.Ip -> IpC;
 }

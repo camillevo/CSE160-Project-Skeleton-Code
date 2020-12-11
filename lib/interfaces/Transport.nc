@@ -150,7 +150,7 @@ interface Transport{
 
    command void sendBuffer(socket_store_t *mySocket);
 
-   command uint8_t readClient(socket_store_t *mySocket, char* fd);
+   command void writeAll(char* message);
 
    command bool findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
 }

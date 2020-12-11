@@ -85,7 +85,8 @@ typedef struct connection{
     uint16_t clientNode;
     nx_socket_port_t clientPort;
     nx_socket_port_t serverPort;
-    int seqNum;
+    uint8_t seqNum;
+    uint8_t mySeqNum;
 }connection;
 
 #endif
