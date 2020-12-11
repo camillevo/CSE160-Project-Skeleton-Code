@@ -24,7 +24,9 @@ def main():
     s.hello(8, 'adrian', 5);
     s.runTime(50);
     s.message(4, 15, 'Hello World');
-    # s.whisper(4, 'adrian', 'Hello World'); # send message from 4 to "adrian"
+    s.runTime(100);
+    s.whisper(8, 5, 'camille', 'Hi back!');
+    # send message from 8 to "camille"
     # s.listusr(4);
 
     # s.clientClose(4, 15, well_known_mote, well_known_port);

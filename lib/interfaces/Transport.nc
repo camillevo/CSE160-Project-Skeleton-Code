@@ -152,5 +152,7 @@ interface Transport{
 
    command void writeAll(char* message);
 
-   command bool findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
+   command socket_t findSocket(uint8_t clientPort, uint16_t server, uint8_t serverPort);
+
+   command socket_t findUser(char *user);
 }

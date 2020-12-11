@@ -121,7 +121,6 @@ implementation{
         for(i = 0; i < call sockets.size(); i++) {
             socket_store_t curr = call sockets.get(keys[i]);
             if(curr.state == ESTABLISHED) {
-                printf("i = %d, will write to %d:%d %s\n", i, curr.dest.addr, curr.dest.port, message);
                 call Transport.write(keys[i], (uint8_t *)message, strlen(message) + 1);
             }
         }
@@ -132,7 +131,6 @@ implementation{
             dbg(TRANSPORT_CHANNEL, "Socket on port %d is not yet established.\n", mySocket->src.addr);
             return;
         }
-        if(mySocket->dest.addr == 8) printf("going to send to 8 now\n");
         while(mySocket->effectiveWindow > 0) {
             // Find min of effectiveWindow, lastWritten, and TCP_MAX_DATA
             uint8_t bytesToSend = (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1) > TCP_MAX_DATA ? TCP_MAX_DATA : (uint8_t)(mySocket->lastWritten - mySocket->lastSent - 1);
@@ -151,16 +149,15 @@ implementation{
             makePack(&sendPackage, TOS_NODE_ID, mySocket->dest.addr, call Random.rand16() % 100, PROTOCOL_TCP, 
                 sendTcpHeader.sequence, (uint8_t *) &sendTcpHeader, TCP_HEADER_LENGTH + bytesToSend
             );
-           dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d to port %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend, mySocket->dest.port);
+            //dbg(TRANSPORT_CHANNEL, "Sent bytes %d to %d to port %d\n", mySocket->lastSent + 1, mySocket->lastSent + bytesToSend, mySocket->dest.port);
             call Ip.ping(sendPackage);
-            if(mySocket->dest.addr == 8) printf("just sent to 8 \n");
             mySocket->lastSent += bytesToSend;
             mySocket->effectiveWindow -= bytesToSend;
         }
         // If there's more to write, then call resend timer.
         // +-1 is wiggle room for my own potential errors in indexing
         if(mySocket->lastSent < mySocket->lastWritten - 1 || mySocket->lastSent > mySocket->lastWritten + 1) {
-            dbg(TRANSPORT_CHANNEL, "restarting timer. lastSent = %d, lastWritten = %d \n", mySocket->lastSent, mySocket->lastWritten);
+            //dbg(TRANSPORT_CHANNEL, "restarting timer. lastSent = %d, lastWritten = %d \n", mySocket->lastSent, mySocket->lastWritten);
             call resendTimer.startOneShot(1500);
         } 
     }
@@ -251,7 +248,7 @@ implementation{
                 mySocket->lastAck = myHeader->ack;
                 mySocket->effectiveWindow = myHeader->advertisedWindow - (mySocket->lastSent - mySocket->lastAck + 1);
 
-                dbg(TRANSPORT_CHANNEL, "ACK: %d received from %d:%d. effWindow now = %d\n", myHeader->ack, package->src, myHeader->sourcePort, mySocket->effectiveWindow);
+                //dbg(TRANSPORT_CHANNEL, "ACK: %d received from %d:%d. effWindow now = %d\n", myHeader->ack, package->src, myHeader->sourcePort, mySocket->effectiveWindow);
             }
             break;
             default: {
@@ -267,7 +264,7 @@ implementation{
                     mySocket->effectiveWindow = mySocket->effectiveWindow - myHeader->ack + TEMP;
                     // We don't want effectiveWindow == 0, or sender won't know when to send more data
                     // so, set effectiveWindow = 1 so that sender will keep trying and eventually recieve an ACK
-                    //if(mySocket->effectiveWindow == 0) mySocket->effectiveWindow += 1;
+                    if(mySocket->effectiveWindow == 0) mySocket->effectiveWindow += 1;
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Got %d, but still waiting on %d\n", myHeader->sequence, mySocket->nextExpected);    
                 }
@@ -291,6 +288,18 @@ implementation{
         return (uint8_t) 0;
     }
 
+    command socket_t Transport.findUser(char *user) {
+        uint32_t *keys = call sockets.getKeys();
+        int i;
+        for(i = call sockets.size() - 1; i >= 0; i--) {
+            socket_store_t curr = call sockets.get(keys[i]);
+            if(strcmp(curr.username, user) == 0) {
+                return keys[i];
+            }
+        }
+        return (uint8_t) 0;
+    }
+
     command uint16_t Transport.read(socket_t fd) {
         socket_store_t *mySocket = call sockets.getPointer(fd);
         uint8_t *endIndex = strstr((const char*) &(mySocket->rcvdBuff[mySocket->lastReadIndex]), "\r\n");
@@ -302,7 +311,7 @@ implementation{
 
         strncpy(cmdMessage, (const char*) &(mySocket->rcvdBuff[mySocket->lastReadIndex]), netBytes);
         cmdMessage[netBytes] = '\0';
-
+    
         call Application.read(mySocket, cmdMessage);
 
         mySocket->lastRead += (netBytes + 3);

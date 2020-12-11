@@ -154,6 +154,10 @@ class TestSim:
         myString = "{0}{1}".format(chr(port), "msg " + message + "\r\n");
         self.sendCMD(self.CMD_APP_CLIENT, address, myString);
 
+    def whisper(self, address, port, user, message):
+        myString = "{0}{1}".format(chr(port), "wsp " + user + " " + message + "\r\n");
+        self.sendCMD(self.CMD_APP_CLIENT, address, myString);
+
     def printer(msg1, msg2):
         print (msg2);
 

@@ -9,14 +9,14 @@ module ApplicationP{
 
 implementation{
     char final[20];
-    char* msg, *cmd;
+    char* msg, *cmd, *user;
+    socket_t temp;
 
     int findCommand(uint8_t *cmdString);
     uint8_t readClient(socket_store_t *mySocket, char *message);
     char* concatString(char* dest, char* first, char* second);
 
     command uint8_t Application.read(socket_store_t *mySocket, char *message) {
-        int temp;
 
         if(TOS_NODE_ID != 1) {
             return readClient(mySocket, message);
@@ -34,6 +34,17 @@ implementation{
                 msg = strtok(NULL, "");
                 concatString(final, mySocket->username, msg);
                 call Transport.writeAll(final);
+                break;
+            case 2:
+                user = strtok(NULL, " ");
+                temp = call Transport.findUser(user);
+                if(temp != 0) {
+                    msg = strtok(NULL, "");
+                    printf("whisper: %s\n", msg);
+                    call Transport.write(temp, msg, strlen(msg) + 1);
+                } else {
+                    dbg(TRANSPORT_CHANNEL, "User %s could not be found\n", user);
+                }
                 break;
             default:
                 dbg(TRANSPORT_CHANNEL, "Not a known command\n");
@@ -61,6 +72,8 @@ implementation{
             return 0;
         } else if(strcmp(cmdString, "msg") == 0) {
             return 1;
+        } else if(strcmp(cmdString, "wsp") == 0) {
+            return 2;
         } else {
             return 5;
         }
